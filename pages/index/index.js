@@ -54,9 +54,8 @@ class Index extends Component {
   }
 
   onToggleDisplay = () =>{
-    apiTool.setValue(this,'FormView',{
-      notDisplay:Math.random() * 1 ? ['a1','a2']:[]
-    })
+    this.toggleDisplay = !this.toggleDisplay
+    apiTool.toggleFormNotDisplay(this, 'FormView', ['a1', 'a2'], this.toggleDisplay)
   }
 
   render() {

@@ -46,7 +46,17 @@ export const setFormValue = function(thz,modelName,dataSource ) {
 
 // 设置表单组件显示隐藏
 export const setFormNotDisplay = function (thz, modelName, notDisplay)  {
+    thz.props.dispatch({ type: `form/setFormNotDisplay`, payload: { modelName, notDisplay } })
+}
 
+// 清空表单显示控制功能
+export const clearNotDisplay = function (thz, modelName)  {
+    thz.props.dispatch({ type: `form/clearNotDisplay`, payload: { modelName } })
+}
+
+// 切换控制表单组件是否显示
+export const toggleFormNotDisplay = function (thz, modelName, notDisplay,isShow = false) {
+    thz.props.dispatch({ type: 'form/toggleFormNotDisplay', payload: {modelName,notDisplay,isShow}})
 }
 
 export default {
@@ -58,5 +68,7 @@ export default {
     hiddenModal,
     clear,
     setFormValue,
-    setFormNotDisplay
+    setFormNotDisplay,
+    clearNotDisplay,
+    toggleFormNotDisplay
 }
