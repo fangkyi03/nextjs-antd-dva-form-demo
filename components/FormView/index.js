@@ -1,43 +1,17 @@
 import React, { Component } from 'react'
-import FormInput from './FormInput/index';
-import { Form } from 'antd';
+import FormContainer from '../FormContainer';
 
-@Form.create({
-  mapPropsToFields:(props)=>{
-    const obj = {}
-    Object.keys(props.dataSource || {}).forEach((e)=>{
-      obj[e] = Form.createFormField({
-        value:props.dataSource[e]
-      })
-    })
-    return obj
-  }
-})
 export default class FormView extends Component {
 
-  renderFormChildren = (item,i) =>{
-    switch (item.type) {
-      case 'input':
-        return <FormInput data={item} key={i} form={this.props.form}/>
-    }
+  constructor(props) {
+    super(props);
+    this.form = new FormContainer({formData:props.data,...props})
   }
-
-  renderForm = (data) =>{
-    return (
-      <div>
-        {data.map((e,i)=>{
-          return this.renderFormChildren(e,i)
-        })}
-      </div>
-    )
-  }
-
+  
   render() {
-    const {data} = this.props
-    return (
-      <div>
-        {this.renderForm(data)}
-      </div>
+    this.form.bindData(this.props)
+    return this.form.getRow(
+      this.form.getChildrenMap()
     )
   }
 }

@@ -39,6 +39,16 @@ export const getRouterParams = function(thz) {
     return thz.props.routerParams
 }
 
+// 设置表单数据
+export const setFormValue = function(thz,modelName,dataSource ) {
+    thz.props.dispatch({ type: `form/setFormValue`, payload: { modelName,dataSource}})
+}
+
+// 设置表单组件显示隐藏
+export const setFormNotDisplay = function (thz, modelName, notDisplay)  {
+
+}
+
 export default {
     send,
     setValue,
@@ -46,5 +56,7 @@ export default {
     getRouterParams,
     showModal,
     hiddenModal,
-    clear
+    clear,
+    setFormValue,
+    setFormNotDisplay
 }

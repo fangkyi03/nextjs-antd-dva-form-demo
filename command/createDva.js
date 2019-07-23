@@ -7,6 +7,7 @@ import fetch from '../models/fetch';
 import apiTool from './apiTool';
 import {message} from 'antd'
 import * as mockTool from '../mockjs'
+import form from '../models/form'
 
 const checkServer = () => Object.prototype.toString.call(global.process) === '[object process]';
 
@@ -47,27 +48,30 @@ function createDvaStore(initialState, modelList) {
         app = dva({});
         regModel(modelList)
     }
-    app.model(
-        fetch({
-            mockTool,
-            netTool: NetTools,
-            onGLNetStart: ({ retData }) => {
-                if (retData.result) {
-                    return retData
-                }
-                if ((retData.code === 200) || retData.status === 0) {
-                    return retData;
-                }
-                return false;
-            },
-            onGLNetError: ({ retData, url }) => {
-                message.error(retData.msg || retData.message );
-            },
-            onGLNetCatch: ({ error }) => {
-                console.log('接口异常输出', error);
-            },
-        }),
-    );
+    if (app && app._models && app._models.findIndex((el) => el.namespace == 'fetch') == -1) {
+        app.model(form);
+        app.model(
+            fetch({
+                mockTool,
+                netTool: NetTools,
+                onGLNetStart: ({ retData }) => {
+                    if (retData.result) {
+                        return retData
+                    }
+                    if ((retData.code === 200) || retData.status === 0) {
+                        return retData;
+                    }
+                    return false;
+                },
+                onGLNetError: ({ retData, url }) => {
+                    message.error(retData.msg || retData.message);
+                },
+                onGLNetCatch: ({ error }) => {
+                    console.log('接口异常输出', error);
+                },
+            }),
+        );
+    }
     app.router(() => { });
     app.start();
     return app;
@@ -130,6 +134,7 @@ function createDva(modelList, { option = {} } = {}) {
             const initialProps = Component.getInitialProps
                 ? await Component.getInitialProps({ ...props, isServer, store })
                 : {};
+            return {}
             return {
                 store,
                 initialProps,
