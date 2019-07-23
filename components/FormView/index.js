@@ -11,7 +11,7 @@ export default class FormView extends Component {
       formData:props.data,
       notDisplay:[],
       required: [],
-      error:{},
+      error:{}
     })
   }
   

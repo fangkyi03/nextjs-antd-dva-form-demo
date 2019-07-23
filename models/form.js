@@ -9,8 +9,14 @@ export default {
             const state = yield select((state)=>state[modelName])  
             yield put({ type: `${modelName}/setValue`, payload: { dataSource: { ...state.dataSource, ...dataSource}}})
         },
+        // 手动设置表单错误
+        *setFormError({payload},{put}) {
+            const { modelName, error } = payload
+            console.log('输出error', error)
+            yield put({type:`${modelName}/setValue`,payload:{error}})
+        },
         // 控制切换是否显示
-        * toggleFormNotDisplay({ payload }, { select,put}){
+        * toggleFormNotDisplay({ payload }, { select,put}) {
             const { modelName, notDisplay,isShow } = payload
             const state = yield select((state) => state[modelName])
             const dataSource = state.dataSource || {}
@@ -32,11 +38,6 @@ export default {
             }
             yield put({ type: `${modelName}/setValue`, payload: { notDisplay: newNotDisplay, dataSource } })
         },
-        // 设置表单错误
-        * setFormError ({payload},{put}){
-            const { modelName,error } = payload
-            yield put({ type: `${modelName}/setValue`, payload: { error } })
-        }
     },
     subscriptions: {},
 }

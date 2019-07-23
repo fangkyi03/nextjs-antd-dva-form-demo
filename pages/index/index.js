@@ -36,7 +36,6 @@ class Index extends Component {
           rules:[
             {
               required:true,
-              msg:'编辑框出错'
             }
           ]
         },
@@ -99,7 +98,7 @@ class Index extends Component {
   render() {
     const NewFormView = this.formView
     return (
-      <div>
+      <div style={{paddingTop:apiTool.getSize(30)}}>
         <NewFormView
           data={this.formData}
           colSize={{

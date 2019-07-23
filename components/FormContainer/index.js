@@ -6,6 +6,7 @@ import FormSelect from './FormSelect';
 import FormInput from './FormInput';
 import classNames from 'classnames';
 import Animate from 'rc-animate';
+import moment from 'moment'
 
 export default class FormContainer {
 
@@ -21,6 +22,8 @@ export default class FormContainer {
         this.props = arg
         this.customChildren = null
         this.destoryNum = 0
+        this.errorObj = {}
+        this.errorTime = moment().valueOf()
     }
 
     getChildrenData = (item) => {
@@ -56,7 +59,7 @@ export default class FormContainer {
                 apiTool.setFormValue(this, this.props.modelList[0], { [item.key]: value.currentTarget.value })
                 break;
             default:
-                apiTool.setFormValue(this, this.props.modelList[0], { [item.key]:value})
+                apiTool.setFormValue(this, this.props.modelList[0], { [item.key]: value })
                 break;
         }
     }
@@ -65,40 +68,84 @@ export default class FormContainer {
         console.log('动画结束')
     }
 
-    getTypeData = (item) =>{
-        const {typeData = {}} = this.props
+    getTypeData = (item) => {
+        const { typeData = {} } = this.props
         return typeData[item.key] || item.typeData || []
     }
 
-    onDestory = () =>{
+    onDestory = () => {
         if (this.destoryNum == 0) {
             this.destoryNum += 1;
             setTimeout(() => {
                 console.log('输出延迟')
-            },100)
-        }else {
+            }, 100)
+        } else {
             this.destoryNum += 1;
         }
     }
 
-    getNotDisplay = (item) =>{
-        const {notDisplay = []} = this.props
+    getNotDisplay = (item) => {
+        const { notDisplay = [] } = this.props
         return notDisplay.indexOf(item.key) == -1
     }
 
-    getRules = (item) => {
-        return '123'
-    }
-
-    getRulesMessage = (item) =>{
-        if (item.rules && item.rules.length > 0) {
-            const ret = item.rules.find((e) => this.getRules(e))
-            if (ret) {
-                return ret.msg
+    getRule = (rule,value,item) =>{
+        const data = {
+            required:{
+                reg: /\S/,
+                msg: '请输入' + (item.name || '') + '内容'
+            },
+        }
+        if (!rule.type) {
+            if (!data['required'].reg.test(value)) {
+                return rule.msg || data['required'].msg
             }else {
                 return ''
             }
+        } else if (!data[rule.type].reg.test(value)){
+            return rule.msg || data[rule.type].msg
         }else {
+            return ''
+        }
+    }
+
+    getRules = (item) => {
+        for (let i = 0;i<item.rules.length;i++) {
+            const retData = this.getRule(item.rules[i],this.getValue(item),item)
+            if (retData) {
+                return retData
+            }
+        }
+        return null
+    }
+
+    addError = (item) =>{
+        const {error = {}} = this.props
+        if (error[item.key] !== this.errorObj[item.key]) {
+            apiTool.setFormError(this, this.props.modelList[0], this.errorObj);
+        }
+    }
+
+    isEqual = () => {
+        return JSON.stringify(this.props.error) == JSON.stringify(this.errorObj)
+    }
+
+    pushError = (item) =>{
+        const ret = this.getRules(item)
+        this.errorObj[item.key] = ret
+        this.addError(item)
+    }
+
+    getRulesMessage = (item) => {
+        if (item.rules && item.rules.length > 0) {
+            this.pushError(item)
+            const {error = {}} = this.props
+            if (error[item.key]) {
+                return error[item.key]
+            }else {
+                return ''
+            }
+        } else {
             return ''
         }
     }
@@ -107,24 +154,23 @@ export default class FormContainer {
         return (Component) => {
             const errorMsg = this.getRulesMessage(item)
             const classes = classNames(
-                'ant-form-item-children',{
+                'ant-form-item-children', {
                     'has-error': errorMsg,
                 }
             )
-            console.log('输出errorMsg', errorMsg)
             return (
                 <div className={classes} key="help">
                     <span className={'ant-form-item-children'}>
                         <Component
                             key={index}
+                            style={item.style}
                             value={this.getValue(item)}
                             typeData={this.getTypeData(item)}
-                            style={item.style}
                             onChange={(value) => this.onChange(value, item)}
                         />
                     </span>
                     {
-                        errorMsg && 
+                        errorMsg &&
                         <Animate
                             transitionName="show-help"
                             component=""
@@ -162,10 +208,10 @@ export default class FormContainer {
         return item.wrappCol || colSize.wrappCol || 8
     }
 
-    getRequired = (item) =>{
+    getRequired = (item) => {
         if (item.rules) {
-            return item.rules.some((e)=>e.required == true)
-        }else {
+            return item.rules.some((e) => e.required == true)
+        } else {
             return false
         }
     }
@@ -173,7 +219,7 @@ export default class FormContainer {
     renderLabel = (item) => {
         const labelCol = this.getLabelCol(item)
         const labelClass = classNames({
-            ['ant-form-item-required']:this.getRequired(item)
+            ['ant-form-item-required']: this.getRequired(item)
         })
         return (
             <Col span={labelCol} className={'ant-form-item-label'}>
@@ -203,9 +249,9 @@ export default class FormContainer {
         }
     }
 
-    renderGroup = (item) =>{
+    renderGroup = (item) => {
         const groupCol = item.cols || 24
-        return (Component) =>{
+        return (Component) => {
             return (
                 <Col span={groupCol}>
                     <Row gutter={item.gutter || 8} className={'ant-row'}>
@@ -216,9 +262,9 @@ export default class FormContainer {
         }
     }
 
-    renderItemGroup = (item) =>{
+    renderItemGroup = (item) => {
         const wrappCol = this.getWrapperCol(item)
-        return (Component) =>{
+        return (Component) => {
             return (
                 <Col span={item.cols || 8}>
                     <Row gutter={item.gutter || 5} className={'ant-row ant-form-item'}>
@@ -232,23 +278,23 @@ export default class FormContainer {
         }
     }
 
-    setCustomChildren (callBack){
+    setCustomChildren(callBack) {
         this.customChildren = callBack;
     }
 
-    getCustomChildren = ({item}) =>{
+    getCustomChildren = ({ item }) => {
         if (this.customChildren) {
             const retData = this.customChildren(item)
-            if (React.isValidElement(retData)){
+            if (React.isValidElement(retData)) {
                 return retData
-            }else if (Array.isArray(retData)) {
+            } else if (Array.isArray(retData)) {
                 return this.getChildrenMap(retData)
-            } else if (retData.type){
-                return this.getChildren({item:retData})
-            }else {
+            } else if (retData.type) {
+                return this.getChildren({ item: retData })
+            } else {
                 return
             }
-        }else {
+        } else {
             return null
         }
     }
@@ -264,7 +310,7 @@ export default class FormContainer {
             case 'group':
                 return this.renderGroup(data.item)(this.getChildrenMap(data.item.keys));
             case 'itemGroup':
-                return this.renderItemGroup(data.item)(this.getChildrenMap(data.item.keys.map((e)=>({...e,name:null}))))
+                return this.renderItemGroup(data.item)(this.getChildrenMap(data.item.keys.map((e) => ({ ...e, name: null }))))
             default:
                 return this.getCustomChildren(data)
         }

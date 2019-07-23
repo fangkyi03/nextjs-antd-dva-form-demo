@@ -8,6 +8,11 @@ export const setValue = function setValue(thz,modelName,payload) {
     thz.props.dispatch({type:`${modelName}/setValue`,payload})
 }
 
+// 获取vw尺寸
+export const getSize = function (size) {
+    return size / 7.5 + 'vw'
+}
+
 // 清除model列表
 export const clearList = function (thz, payload) {
     payload.forEach((e) => {
@@ -59,9 +64,9 @@ export const toggleFormNotDisplay = function (thz, modelName, notDisplay,isShow 
     thz.props.dispatch({ type: 'form/toggleFormNotDisplay', payload: {modelName,notDisplay,isShow}})
 }
 
-// 手动设置表单错误
-export const setFormError = function (thz,modelName,error) {
-    thz.props.dispatch({type:'form/setFormError',payload:{modelName,error}})
+// 手动设置错误表单内容
+export const setFormError = function(thz,modelName,error) {
+    thz.props.dispatch({ type: 'form/setFormError', payload: { error, modelName}})
 }
 
 export default {
@@ -76,5 +81,6 @@ export default {
     setFormNotDisplay,
     clearNotDisplay,
     toggleFormNotDisplay,
-    setFormError
+    setFormError,
+    getSize
 }
