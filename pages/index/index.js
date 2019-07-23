@@ -36,6 +36,11 @@ class Index extends Component {
           rules:[
             {
               required:true,
+            },
+            {
+              type:'maxLen',
+              value:10,
+              msg:'输入内容超过10位'
             }
           ]
         },
@@ -79,7 +84,7 @@ class Index extends Component {
 
   onButtonDown = () =>{
     apiTool.setFormValue(this,'FormView',{
-      a1:Math.random() * 10900,
+      a1:'',
       a2:Math.random() * 1001,
       a3: Math.random() * 1001,
       a4:1

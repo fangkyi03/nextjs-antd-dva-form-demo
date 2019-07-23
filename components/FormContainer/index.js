@@ -95,6 +95,10 @@ export default class FormContainer {
                 reg: /\S/,
                 msg: '请输入' + (item.name || '') + '内容'
             },
+            maxLen:{
+                err:value.length > (rule.value || 10),
+                msg:'输入内容超过长度'
+            }
         }
         if (!rule.type) {
             if (!data['required'].reg.test(value)) {
@@ -102,7 +106,9 @@ export default class FormContainer {
             }else {
                 return ''
             }
-        } else if (!data[rule.type].reg.test(value)){
+        } else if (data[rule.type].reg && !data[rule.type].reg.test(value)){
+            return rule.msg || data[rule.type].msg
+        } else if (data[rule.type].err) {
             return rule.msg || data[rule.type].msg
         }else {
             return ''

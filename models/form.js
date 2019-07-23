@@ -12,7 +12,6 @@ export default {
         // 手动设置表单错误
         *setFormError({payload},{put}) {
             const { modelName, error } = payload
-            console.log('输出error', error)
             yield put({type:`${modelName}/setValue`,payload:{error}})
         },
         // 控制切换是否显示
