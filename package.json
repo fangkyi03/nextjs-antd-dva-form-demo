@@ -16,6 +16,7 @@
     "@zeit/next-stylus": "^1.0.1",
     "antd": "^3.19.2",
     "babel-plugin-import": "^1.7.0",
+    "classnames": "^2.2.6",
     "dva": "^2.3.0",
     "dva-no-router": "^1.2.1",
     "dvajs": "^0.1.8",

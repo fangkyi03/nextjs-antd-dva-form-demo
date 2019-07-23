@@ -4,6 +4,9 @@ import apiTool from '../../command/apiTool';
 import 'antd/es/form/style'
 import FormSelect from './FormSelect';
 import FormInput from './FormInput';
+import classNames from 'classnames';
+import Animate from 'rc-animate';
+
 export default class FormContainer {
 
     static defaultProps = {
@@ -48,8 +51,13 @@ export default class FormContainer {
     }
 
     onChange = (value, item) => {
-        if (item.type == 'input') {
-            apiTool.setFormValue(this, this.props.modelList[0], { [item.key]: value.currentTarget.value })
+        switch (item.type) {
+            case 'input':
+                apiTool.setFormValue(this, this.props.modelList[0], { [item.key]: value.currentTarget.value })
+                break;
+            default:
+                apiTool.setFormValue(this, this.props.modelList[0], { [item.key]:value})
+                break;
         }
     }
 
@@ -78,10 +86,34 @@ export default class FormContainer {
         return notDisplay.indexOf(item.key) == -1
     }
 
+    getRules = (item) => {
+        return '123'
+    }
+
+    getRulesMessage = (item) =>{
+        if (item.rules && item.rules.length > 0) {
+            const ret = item.rules.find((e) => this.getRules(e))
+            if (ret) {
+                return ret.msg
+            }else {
+                return ''
+            }
+        }else {
+            return ''
+        }
+    }
+
     renderComponent = ({ item, index }) => {
         return (Component) => {
+            const errorMsg = this.getRulesMessage(item)
+            const classes = classNames(
+                'ant-form-item-children',{
+                    'has-error': errorMsg,
+                }
+            )
+            console.log('输出errorMsg', errorMsg)
             return (
-                <div className={'ant-form-item-control'} key="help">
+                <div className={classes} key="help">
                     <span className={'ant-form-item-children'}>
                         <Component
                             key={index}
@@ -91,17 +123,19 @@ export default class FormContainer {
                             onChange={(value) => this.onChange(value, item)}
                         />
                     </span>
-                    {/* <Animate
-                        transitionName="show-help"
-                        component=""
-                        transitionAppear
-                        key="help"
-                        onEnd={this.onHelpAnimEnd}
-                    >
-                        <div className={`ant-form-explain`} key="help">
-                            1123123
-                        </div>
-                    </Animate> */}
+                    {
+                        errorMsg && 
+                        <Animate
+                            transitionName="show-help"
+                            component=""
+                            transitionAppear
+                            key="help"
+                        >
+                            <div className={`ant-form-explain`} key="help">
+                                {errorMsg}
+                            </div>
+                        </Animate>
+                    }
                 </div>
             )
         }
@@ -110,7 +144,7 @@ export default class FormContainer {
     renderFormItem = ({ item, index }) => {
         return (Component) => {
             return (
-                <Row key={index} className={'ant-row ant-form-item'}>
+                <Row key={index} className={'ant-form-item'}>
                     {this.renderLabel(item)}
                     {this.renderWraper(item)(Component)}
                 </Row>
@@ -128,12 +162,22 @@ export default class FormContainer {
         return item.wrappCol || colSize.wrappCol || 8
     }
 
+    getRequired = (item) =>{
+        if (item.rules) {
+            return item.rules.some((e)=>e.required == true)
+        }else {
+            return false
+        }
+    }
+
     renderLabel = (item) => {
         const labelCol = this.getLabelCol(item)
+        const labelClass = classNames({
+            ['ant-form-item-required']:this.getRequired(item)
+        })
         return (
             <Col span={labelCol} className={'ant-form-item-label'}>
-                <label className={'ant-form-item-required'} title={item.name}>{item.name}</label>
-                {/* <div style={{ display: 'flex', alignItems: 'center',justifyContent:'flex-end',padding: '5px 11px', }}>{item.name}</div> */}
+                <label className={labelClass} title={item.name}>{item.name}</label>
             </Col>
         )
     }
@@ -164,7 +208,7 @@ export default class FormContainer {
         return (Component) =>{
             return (
                 <Col span={groupCol}>
-                    <Row gutter={item.gutter || 8} className={'ant-row ant-form-item'}>
+                    <Row gutter={item.gutter || 8} className={'ant-row'}>
                         {Component}
                     </Row>
                 </Col>

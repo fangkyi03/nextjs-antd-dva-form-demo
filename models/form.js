@@ -6,8 +6,8 @@ export default {
         // 设置表单数据
         * setFormValue({ payload }, { call, select, put }) {
             const {modelName,dataSource} = payload
-            const state = yield select((state)=>state[modelName])
-            console.log('输出state',state)
+            const state = yield select((state)=>state[modelName])  
+            yield put({ type: `${modelName}/setValue`, payload: { dataSource: { ...state.dataSource, ...dataSource}}})
         },
         // 控制切换是否显示
         * toggleFormNotDisplay({ payload }, { select,put}){
@@ -15,7 +15,7 @@ export default {
             const state = yield select((state) => state[modelName])
             const dataSource = state.dataSource || {}
             const oldNotDisplay = state.notDisplay || []
-            let newNotDisplay = oldNotDisplay
+            let newNotDisplay = oldNotDisplay    
             if (Array.isArray(notDisplay) && notDisplay.length > 0) {
                 if (isShow) {
                     const tempOldNotDisplay = new Set(oldNotDisplay)
@@ -30,9 +30,13 @@ export default {
                     newNotDisplay = Array.from(new Set(newNotDisplay.concat(notDisplay)))
                 }
             }
-            console.log('输出数据', newNotDisplay, isShow,notDisplay,dataSource)
             yield put({ type: `${modelName}/setValue`, payload: { notDisplay: newNotDisplay, dataSource } })
         },
+        // 设置表单错误
+        * setFormError ({payload},{put}){
+            const { modelName,error } = payload
+            yield put({ type: `${modelName}/setValue`, payload: { error } })
+        }
     },
     subscriptions: {},
 }

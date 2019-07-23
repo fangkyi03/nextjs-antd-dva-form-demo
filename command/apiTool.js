@@ -59,6 +59,11 @@ export const toggleFormNotDisplay = function (thz, modelName, notDisplay,isShow 
     thz.props.dispatch({ type: 'form/toggleFormNotDisplay', payload: {modelName,notDisplay,isShow}})
 }
 
+// 手动设置表单错误
+export const setFormError = function (thz,modelName,error) {
+    thz.props.dispatch({type:'form/setFormError',payload:{modelName,error}})
+}
+
 export default {
     send,
     setValue,
@@ -70,5 +75,6 @@ export default {
     setFormValue,
     setFormNotDisplay,
     clearNotDisplay,
-    toggleFormNotDisplay
+    toggleFormNotDisplay,
+    setFormError
 }
