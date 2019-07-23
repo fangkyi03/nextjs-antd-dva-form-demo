@@ -96,10 +96,6 @@ class Index extends Component {
     apiTool.toggleFormNotDisplay(this, 'FormView', ['a1', 'a2'], this.toggleDisplay)
   }
 
-  onTestError = () =>{
-    apiTool.setFormError(this,'FormView',{a1:'错误'})
-  }
-
   render() {
     const NewFormView = this.formView
     return (
@@ -111,9 +107,10 @@ class Index extends Component {
             wrappCol: 5,
           }}
         />
-        <Button onClick={this.onButtonDown}>点击刷新数据</Button>
-        <Button onClick={this.onToggleDisplay}>切换显示</Button>
-        <Button onClick={this.onTestError}>测试错误显示</Button>
+        <div style={{display:'flex',justifyContent:'center'}}>
+          <Button onClick={this.onButtonDown}>点击刷新数据</Button>
+          <Button onClick={this.onToggleDisplay}>切换显示</Button>
+        </div>
       </div>
     )
   }
