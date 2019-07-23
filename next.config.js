@@ -11,7 +11,7 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const withPreact = require('@zeit/next-preact')
 const getPageFile = require('./utils/getPageFile')
 const withLessExcludeAntd = require("./next-less.config.js")
-// const withBundleAnalyzer = require("@next/bundle-analyzer")({ enabled: process.env.ANALYZE === "true" });
+const webpack = require('webpack');
 const withSize = require('next-size')
 const fs = require('fs')
 const path = require('path')
@@ -98,6 +98,8 @@ module.exports = withPlugins([
     },
     webpack(config, options) {
       config.output = { ...config.output, globalObject: 'this',}
+      config.plugins.push(new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/))
+      config.plugins.push(new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /zh-cn/))
       config.module.rules.push({
         loader: 'webpack-ant-icon-loader',
         enforce: 'pre',

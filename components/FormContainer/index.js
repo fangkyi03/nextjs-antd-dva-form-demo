@@ -1,5 +1,5 @@
 import React from 'react'
-import { Row, Col, Checkbox } from 'antd';
+import { Row, Col } from 'antd';
 import apiTool from '../../command/apiTool';
 import 'antd/es/form/style'
 import FormSelect from './FormSelect';
