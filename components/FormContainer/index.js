@@ -156,6 +156,11 @@ export default class FormContainer {
         }
     }
 
+    getDisable = (item) =>{
+        const {disable = []} = this.props
+        return disable.indexOf(item.key) !== -1
+    }
+
     renderComponent = ({ item, index }) => {
         return (Component) => {
             const errorMsg = this.getRulesMessage(item)
@@ -173,6 +178,7 @@ export default class FormContainer {
                             value={this.getValue(item)}
                             typeData={this.getTypeData(item)}
                             onChange={(value) => this.onChange(value, item)}
+                            disable={this.getDisable(item)}
                         />
                     </span>
                     {

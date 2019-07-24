@@ -62,7 +62,7 @@ fastify.register((fastify, opts, next) => {
     .catch(err => next(err))
 })
 
-fastify.listen(port, err => {
+fastify.listen(port,'0.0.0.0',err => {
   if (err) throw err
   console.log(`> Ready on http://localhost:${port}`)
 })

@@ -69,6 +69,16 @@ export const setFormError = function(thz,modelName,error) {
     thz.props.dispatch({ type: 'form/setFormError', payload: { error, modelName}})
 }
 
+// 切换显示页面modal
+export const toggleModal = function(thz,modelName,isShow = true) {
+    thz.props.dispatch({ type: `${modelName}/setValue`, payload: {isShowModal:isShow } })
+}
+
+// 设置表单禁用
+export const setFormDisable = function(thz,modelName,disable) {
+    thz.props.dispatch({ type: 'form/setFormDisable', payload: { disable, modelName } })
+}
+
 export default {
     send,
     setValue,
@@ -82,5 +92,7 @@ export default {
     clearNotDisplay,
     toggleFormNotDisplay,
     setFormError,
-    getSize
+    getSize,
+    toggleModal,
+    setFormDisable
 }

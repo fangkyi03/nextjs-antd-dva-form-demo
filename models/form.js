@@ -14,6 +14,13 @@ export default {
             const { modelName, error } = payload
             yield put({type:`${modelName}/setValue`,payload:{error}})
         },
+        // 设置表单禁用
+        *setFormDisable({payload},{put,select}){
+            const { modelName, disable } = payload
+            if (Array.isArray(disable) && disable.length > 0) {
+                yield put({ type: `${modelName}/setValue`, payload: { disable} })
+            }
+        },
         // 控制切换是否显示
         * toggleFormNotDisplay({ payload }, { select,put}) {
             const { modelName, notDisplay,isShow } = payload

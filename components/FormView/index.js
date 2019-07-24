@@ -4,6 +4,13 @@ import apiTool from '../../command/apiTool';
 
 export default class FormView extends Component {
 
+  static defaultProps = {
+    colSize:{
+      labelCol: 8,
+      wrappCol: 10,
+    }
+  }
+
   constructor(props) {
     super(props);
     this.form = new FormContainer({formData:props.data,...props})

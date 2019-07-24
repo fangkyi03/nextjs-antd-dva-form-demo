@@ -1,12 +1,17 @@
-import React, { Component } from 'react'
+import React, { Component, PureComponent } from 'react'
 import {Select} from 'antd'
 
-export default class FormSelect extends Component {
+export default class FormSelect extends PureComponent {
 
   render() {
-    const {typeData = [],value} = this.props
+      const { typeData = [], value, disable} = this.props
     return (
-        <Select style={{width:'100%'}} value={value} onChange={this.props.onChange}>
+        <Select 
+            style={{width:'100%'}} 
+            value={value} 
+            onChange={this.props.onChange}
+            disabled={disable}
+        >
             {
                 typeData.map((e,i)=>{
                     return (
