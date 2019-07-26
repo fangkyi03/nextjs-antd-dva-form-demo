@@ -32,7 +32,7 @@ class Index extends Component {
       cols:24,
       labelCol:6,
       wrappCol:5,
-      keys:Array(10).fill({}).map((e,i)=>({
+      keys:Array(500).fill({}).map((e,i)=>({
         type:'input',
         name:'测试' + i,
         key:'a' + i,
