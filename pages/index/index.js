@@ -6,6 +6,7 @@ import Link from 'next/link'
 import createDva from '../../command/createDva';
 import FormModal from '../../components/FormModal/index';
 import FormView from '../../components/FormView';
+import formStore from '../../utils/formStore';
 
 @createDva([])
 class Index extends Component {
@@ -73,11 +74,11 @@ class Index extends Component {
   }
 
   onButtonDown = () =>{
-    apiTool.setFormValue(this,'FormView',{
-      a1:'',
-      a2:Math.random() * 1001,
+    formStore.changeDataSource('FormView', {
+      a1: '12312312312',
+      a2: Math.random() * 1001,
       a3: Math.random() * 1001,
-      a4:1
+      a4: 1
     })
   }
 
@@ -100,15 +101,17 @@ class Index extends Component {
     const NewFormModal = this.formModal
     const NewFormView1 = this.formView1
     return (
-      <div style={{paddingTop:apiTool.getSize(30)}}>
-        <NewFormView data={this.formData}/>
-        <NewFormView1 data={this.formData1} />
-        <NewFormModal data={this.formData}/>
-        <div style={{display:'flex',justifyContent:'center'}}>
+      <div style={{paddingTop:apiTool.getSize(30),display:'flex'}}>
+        <div style={{ display: 'flex',flexDirection:'column',width:500,height:2000 }}>
           <Button onClick={this.onButtonDown}>点击刷新数据</Button>
-          <Button onClick={this.onToggleDisplay}>切换显示</Button>
+          {/* <Button onClick={this.onToggleDisplay}>切换显示</Button> */}
           <Button onClick={this.onShowModal}>显示弹窗modal</Button>
-          <Button onClick={this.onSetDisableDown}>设置表单禁用</Button>
+          {/* <Button onClick={this.onSetDisableDown}>设置表单禁用</Button> */}
+        </div>
+        <div style={{display:'flex',flexDirection:'column'}}>
+          <NewFormView data={this.formData} />
+          <NewFormView1 data={this.formData1} />
+          <NewFormModal data={this.formData} />
         </div>
       </div>
     )

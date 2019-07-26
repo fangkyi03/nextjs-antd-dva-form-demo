@@ -6,15 +6,27 @@ class FormStore {
     
     addStore(name,data) {
         this.store[name] = data
-        console.log("输出data",data)
     }
 
     releaseStore (name){
         this.store[name] = {}
     }
 
+    // 修改单条数据源数据
     changeStoreData (name,key,value){
         this.store[name]['dataSource'][key] = value
+    }
+
+    // 获取监听
+    getSubscribe (name) {
+        console.log('输出', this.store[name])
+        return this.store[name].subscribe
+    }
+
+    // 修改表单数据源
+    changeDataSource (name,value) {
+        this.store[name]['dataSource'] = value
+        this.getSubscribe(name)(value)
     }
 
     getFormData (name) {

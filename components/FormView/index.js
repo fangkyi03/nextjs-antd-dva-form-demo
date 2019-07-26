@@ -14,13 +14,6 @@ export default class FormView extends Component {
   constructor(props) {
     super(props);
     this.form = new FormContainer({ formData: props.data, ...props })
-    apiTool.setValue(this, this.props.modelList[0], {
-      formData: props.data,
-      notDisplay: [],
-      required: [],
-      error: {},
-      disable: []
-    })
   }
 
   onGetRef = () => {
@@ -35,7 +28,6 @@ export default class FormView extends Component {
             this.form.getChildrenMap()
           )
         }
-        <div onClick={this.onGetRef}>点击获取ref</div>
       </div>
     )
   }
