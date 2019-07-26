@@ -4,10 +4,10 @@ import apiTool from '../../command/apiTool';
 import 'antd/es/form/style'
 import FormSelect from './FormSelect';
 import FormInput from './FormInput';
-import classNames from 'classnames';
-import Animate from 'rc-animate';
 import moment from 'moment'
-
+import FormRef from './FormRef';
+import formStore from '../../utils/formStore';
+import classNames from 'classnames';
 export default class FormContainer {
 
     static defaultProps = {
@@ -24,6 +24,41 @@ export default class FormContainer {
         this.destoryNum = 0
         this.errorObj = {}
         this.errorTime = moment().valueOf()
+        this._ref = {}
+        this.initStore()
+    }
+
+    initFormData = (formData,obj) => {
+        formData.forEach((e)=>{
+            if (Array.isArray(e.keys) && e.keys.length > 0) {
+                return this.initFormData(e.keys, obj)
+            }else {
+               obj[e.key] = e
+            }
+        })
+        return obj
+    }
+
+    initStore = () =>{
+        formStore.addStore(this.props.modelList[0],{
+            subscribe:this.subscribe,
+            dataSource:{},
+            disable:[],
+            typeData:[],
+            formData:this.initFormData(this.formData,{})
+        })
+    }
+
+    subscribe = (dataSource) =>{
+        Object.keys(dataSource).forEach((e)=>{
+            const formItem = formStore.getFormItem(this.getFormNmae(), e)
+            this._ref[e].setProps({
+                value: this.getValue(formItem),
+                disable: this.getDisable(formItem),
+                typeData: this.getTypeData(formItem),
+                error: this.getRulesMessage(formItem)
+            })
+        })
     }
 
     getChildrenData = (item) => {
@@ -40,8 +75,9 @@ export default class FormContainer {
         }
     }
 
+    
     getValue = (item) => {
-        const { dataSource = {} } = this.props
+        const dataSource = formStore.getFormData(this.props.modelList[0])
         if (!item.key) return
         return dataSource[item.key] ? dataSource[item.key] : item.value || ''
     }
@@ -53,10 +89,15 @@ export default class FormContainer {
         }
     }
 
+    addStoreData = (key,data) =>{
+        formStore.changeStoreData(this.getFormNmae(),key,data)
+        this.subscribe({ [key]: data })
+    }
+
     onChange = (value, item) => {
         switch (item.type) {
             case 'input':
-                apiTool.setFormValue(this, this.props.modelList[0], { [item.key]: value.currentTarget.value })
+                this.addStoreData(item.key, value.currentTarget.value)
                 break;
             default:
                 apiTool.setFormValue(this, this.props.modelList[0], { [item.key]: value })
@@ -89,35 +130,35 @@ export default class FormContainer {
         return notDisplay.indexOf(item.key) == -1
     }
 
-    getRule = (rule,value,item) =>{
+    getRule = (rule, value, item) => {
         const data = {
-            required:{
+            required: {
                 reg: /\S/,
                 msg: '请输入' + (item.name || '') + '内容'
             },
-            maxLen:{
-                err:value.length > (rule.value || 10),
-                msg:'输入内容超过长度'
+            maxLen: {
+                err: value.length > (rule.value || 10),
+                msg: '输入内容超过长度'
             }
         }
         if (!rule.type) {
             if (!data['required'].reg.test(value)) {
                 return rule.msg || data['required'].msg
-            }else {
+            } else {
                 return ''
             }
-        } else if (data[rule.type].reg && !data[rule.type].reg.test(value)){
+        } else if (data[rule.type].reg && !data[rule.type].reg.test(value)) {
             return rule.msg || data[rule.type].msg
         } else if (data[rule.type].err) {
             return rule.msg || data[rule.type].msg
-        }else {
+        } else {
             return ''
         }
     }
 
     getRules = (item) => {
-        for (let i = 0;i<item.rules.length;i++) {
-            const retData = this.getRule(item.rules[i],this.getValue(item),item)
+        for (let i = 0; i < item.rules.length; i++) {
+            const retData = this.getRule(item.rules[i], this.getValue(item), item)
             if (retData) {
                 return retData
             }
@@ -125,10 +166,14 @@ export default class FormContainer {
         return null
     }
 
-    addError = (item) =>{
-        const {error = {}} = this.props
+    getFormNmae = () =>{
+        return this.props.modelList[0]
+    }
+
+    addError = (item) => {
+        const { error = {} } = this.getFormStore()
         if (error[item.key] !== this.errorObj[item.key]) {
-            apiTool.setFormError(this, this.props.modelList[0], this.errorObj);
+            formStore.changeError(this.getFormNmae(),this.errorObj)
         }
     }
 
@@ -136,19 +181,27 @@ export default class FormContainer {
         return JSON.stringify(this.props.error) == JSON.stringify(this.errorObj)
     }
 
-    pushError = (item) =>{
+    getRef = () =>{
+        return this._ref
+    }
+
+    pushError = (item) => {
         const ret = this.getRules(item)
         this.errorObj[item.key] = ret
         this.addError(item)
     }
 
+    getFormStore = () => {
+        return formStore.getFormStore(this.props.modelList[0])
+    }
+
     getRulesMessage = (item) => {
         if (item.rules && item.rules.length > 0) {
             this.pushError(item)
-            const {error = {}} = this.props
+            const { error = {} } = this.getFormStore()
             if (error[item.key]) {
                 return error[item.key]
-            }else {
+            } else {
                 return ''
             }
         } else {
@@ -156,45 +209,23 @@ export default class FormContainer {
         }
     }
 
-    getDisable = (item) =>{
-        const {disable = []} = this.props
+    getDisable = (item) => {
+        const { disable = [] } = this.props
         return disable.indexOf(item.key) !== -1
     }
 
     renderComponent = ({ item, index }) => {
         return (Component) => {
-            const errorMsg = this.getRulesMessage(item)
-            const classes = classNames(
-                'ant-form-item-children', {
-                    'has-error': errorMsg,
-                }
-            )
             return (
-                <div className={classes} key="help">
-                    <span className={'ant-form-item-children'}>
-                        <Component
-                            key={index}
-                            style={item.style}
-                            value={this.getValue(item)}
-                            typeData={this.getTypeData(item)}
-                            onChange={(value) => this.onChange(value, item)}
-                            disable={this.getDisable(item)}
-                        />
-                    </span>
-                    {
-                        errorMsg &&
-                        <Animate
-                            transitionName="show-help"
-                            component=""
-                            transitionAppear
-                            key="help"
-                        >
-                            <div className={`ant-form-explain`} key="help">
-                                {errorMsg}
-                            </div>
-                        </Animate>
-                    }
-                </div>
+                <FormRef
+                    ref={(r) => this._ref[item.key] = r}
+                    onChange={(value) => this.onChange(value, item)}
+                    key={item.key}
+                >
+                    <Component
+                        style={item.style}
+                    />
+                </FormRef>
             )
         }
     }
@@ -250,7 +281,6 @@ export default class FormContainer {
             )
         }
     }
-
 
     renderChildren = ({ item, index }) => {
         return (Component) => {

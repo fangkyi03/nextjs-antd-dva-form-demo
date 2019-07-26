@@ -6,7 +6,7 @@ export default class FormInput extends PureComponent {
   render() {
     const {value,onChange,disable} = this.props
     return (
-        <Input value={value} onChange={onChange} disabled={disable}/>
+      <Input disabled={disable} ref={(r) => this.ref = r} onChange={onChange} value={value}/>
     )
   }
 }

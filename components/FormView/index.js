@@ -5,7 +5,7 @@ import apiTool from '../../command/apiTool';
 export default class FormView extends Component {
 
   static defaultProps = {
-    colSize:{
+    colSize: {
       labelCol: 8,
       wrappCol: 10,
     }
@@ -13,19 +13,30 @@ export default class FormView extends Component {
 
   constructor(props) {
     super(props);
-    this.form = new FormContainer({formData:props.data,...props})
-    apiTool.setValue(this,this.props.modelList[0],{
-      formData:props.data,
-      notDisplay:[],
+    this.form = new FormContainer({ formData: props.data, ...props })
+    apiTool.setValue(this, this.props.modelList[0], {
+      formData: props.data,
+      notDisplay: [],
       required: [],
-      error:{}
+      error: {},
+      disable: []
     })
   }
-  
+
+  onGetRef = () => {
+  }
+
   render() {
     this.form.bindData(this.props)
-    return this.form.getRow(
-      this.form.getChildrenMap()
+    return (
+      <div>
+        {
+          this.form.getRow(
+            this.form.getChildrenMap()
+          )
+        }
+        <div onClick={this.onGetRef}>点击获取ref</div>
+      </div>
     )
   }
 }
