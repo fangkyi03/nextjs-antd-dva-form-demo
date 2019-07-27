@@ -6,7 +6,7 @@ export default class FormRef extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      stateProps:{}
+      stateProps:props || {}
     }
   }
   
@@ -46,7 +46,8 @@ export default class FormRef extends Component {
 
   render() {
     const {stateProps} = this.state
-    const { error } = stateProps
+    const { error,notDisplay } = stateProps
+    if (notDisplay) return null
     const classes = classNames(
       'ant-form-item-children', {
         'has-error': error,

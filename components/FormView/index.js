@@ -20,7 +20,6 @@ export default class FormView extends Component {
   }
 
   render() {
-    this.form.bindData(this.props)
     return (
       <div>
         {

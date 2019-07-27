@@ -1,6 +1,5 @@
 import React from 'react'
 import { Row, Col } from 'antd';
-import apiTool from '../../command/apiTool';
 import 'antd/es/form/style'
 import FormSelect from './FormSelect';
 import FormInput from './FormInput';
@@ -28,29 +27,29 @@ export default class FormContainer {
         this.initStore()
     }
 
-    initFormData = (formData,obj) => {
-        formData.forEach((e)=>{
+    initFormData = (formData, obj) => {
+        formData.forEach((e) => {
             if (Array.isArray(e.keys) && e.keys.length > 0) {
                 return this.initFormData(e.keys, obj)
-            }else {
-               obj[e.key] = e
+            } else {
+                obj[e.key] = e
             }
         })
         return obj
     }
 
-    initStore = () =>{
-        formStore.addStore(this.props.modelList[0],{
-            subscribe:this.subscribe,
-            dataSource:{},
-            disable:[],
-            typeData:[],
-            formData:this.initFormData(this.formData,{})
+    initStore = () => {
+        formStore.addStore(this.getFormNmae(), {
+            subscribe: this.subscribe,
+            dataSource: {},
+            disable: [],
+            typeData: [],
+            formData: this.initFormData(this.formData, {})
         })
     }
 
-    subscribe = (dataSource) =>{
-        Object.keys(dataSource).forEach((e)=>{
+    subscribe = (dataSource) => {
+        Object.keys(dataSource).forEach((e) => {
             const formItem = formStore.getFormItem(this.getFormNmae(), e)
             this._ref[e].setProps({
                 value: this.getValue(formItem),
@@ -75,9 +74,9 @@ export default class FormContainer {
         }
     }
 
-    
+
     getValue = (item) => {
-        const dataSource = formStore.getFormData(this.props.modelList[0])
+        const dataSource = formStore.getFormData(this.getFormNmae())
         if (!item.key) return
         return dataSource[item.key] ? dataSource[item.key] : item.value || ''
     }
@@ -89,8 +88,8 @@ export default class FormContainer {
         }
     }
 
-    addStoreData = (key,data) =>{
-        formStore.changeStoreData(this.getFormNmae(),key,data)
+    addStoreData = (key, data) => {
+        formStore.changeStoreData(this.getFormNmae(), key, data)
         this.subscribe({ [key]: data })
     }
 
@@ -100,7 +99,7 @@ export default class FormContainer {
                 this.addStoreData(item.key, value.currentTarget.value)
                 break;
             default:
-                apiTool.setFormValue(this, this.props.modelList[0], { [item.key]: value })
+                this.addStoreData(item.key, value)
                 break;
         }
     }
@@ -110,7 +109,7 @@ export default class FormContainer {
     }
 
     getTypeData = (item) => {
-        const { typeData = {} } = this.props
+        const { typeData = {} } = this.getFormStore()
         return typeData[item.key] || item.typeData || []
     }
 
@@ -166,14 +165,14 @@ export default class FormContainer {
         return null
     }
 
-    getFormNmae = () =>{
-        return this.props.modelList[0]
+    getFormNmae = () => {
+        return this.props.modelName
     }
 
     addError = (item) => {
         const { error = {} } = this.getFormStore()
         if (error[item.key] !== this.errorObj[item.key]) {
-            formStore.changeError(this.getFormNmae(),this.errorObj)
+            formStore.changeError(this.getFormNmae(), this.errorObj)
         }
     }
 
@@ -181,7 +180,7 @@ export default class FormContainer {
         return JSON.stringify(this.props.error) == JSON.stringify(this.errorObj)
     }
 
-    getRef = () =>{
+    getRef = () => {
         return this._ref
     }
 
@@ -192,7 +191,7 @@ export default class FormContainer {
     }
 
     getFormStore = () => {
-        return formStore.getFormStore(this.props.modelList[0])
+        return formStore.getFormStore(this.getFormNmae())
     }
 
     getRulesMessage = (item) => {
@@ -221,6 +220,10 @@ export default class FormContainer {
                     ref={(r) => this._ref[item.key] = r}
                     onChange={(value) => this.onChange(value, item)}
                     key={item.key}
+                    value={this.getValue(item)}
+                    disable={this.getDisable(item)}
+                    typeData={this.getTypeData(item)}
+                    // error={this.getRulesMessage(item)}
                 >
                     <Component
                         style={item.style}
@@ -370,9 +373,5 @@ export default class FormContainer {
                 {children}
             </Row>
         )
-    }
-
-    bindData = (data) => {
-        this.props = data
     }
 }

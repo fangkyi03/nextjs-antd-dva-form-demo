@@ -19,7 +19,6 @@ class FormStore {
 
     // 获取监听
     getSubscribe (name) {
-        console.log('输出', this.store[name])
         return this.store[name].subscribe
     }
 

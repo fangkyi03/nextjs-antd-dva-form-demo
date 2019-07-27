@@ -14,9 +14,6 @@ class Index extends Component {
   constructor(props) {
     super(props);
     this.toggleDisplay = true
-    this.formView = createDva(['FormView'])(FormView)
-    this.formView1 = createDva(['FormView1'])(FormView)
-    this.formModal = createDva(['FormModal'])(FormModal)
     this.formData = [
       // 测试组1
       this.getFormHeaderGroup(),
@@ -33,7 +30,7 @@ class Index extends Component {
       cols:24,
       labelCol:6,
       wrappCol:5,
-      keys:Array(500).fill({}).map((e,i)=>({
+      keys:Array(1000).fill({}).map((e,i)=>({
         type:'input',
         name:'测试' + i,
         key:'a' + i,
@@ -75,10 +72,8 @@ class Index extends Component {
 
   onButtonDown = () =>{
     formStore.changeDataSource('FormView', {
-      a1: '12312312312',
-      a2: Math.random() * 1001,
-      a3: Math.random() * 1001,
-      a4: 1
+      a2:Math.random() * 10,
+      a3:Math.random() * 10,
     })
   }
 
@@ -97,21 +92,19 @@ class Index extends Component {
   }
 
   render() {
-    const NewFormView = this.formView
-    const NewFormModal = this.formModal
-    const NewFormView1 = this.formView1
     return (
       <div style={{paddingTop:apiTool.getSize(30),display:'flex'}}>
         <div style={{ display: 'flex',flexDirection:'column',width:500,height:2000 }}>
-          <Button onClick={this.onButtonDown}>点击刷新数据</Button>
+          <div onClick={this.onButtonDown}>div按钮测试</div>
+          <Button onClick={this.onButtonDown}>button刷新数据测试</Button>
           {/* <Button onClick={this.onToggleDisplay}>切换显示</Button> */}
-          <Button onClick={this.onShowModal}>显示弹窗modal</Button>
+          {/* <Button onClick={this.onShowModal}>显示弹窗modal</Button> */}
           {/* <Button onClick={this.onSetDisableDown}>设置表单禁用</Button> */}
         </div>
         <div style={{display:'flex',flexDirection:'column'}}>
-          <NewFormView data={this.formData} />
-          <NewFormView1 data={this.formData1} />
-          <NewFormModal data={this.formData} />
+          <FormView data={this.formData} modelName={'FormView'} />
+          {/* <NewFormView1 data={this.formData1} />
+          <NewFormModal data={this.formData} /> */}
         </div>
       </div>
     )

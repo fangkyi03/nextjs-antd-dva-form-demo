@@ -4,12 +4,12 @@ import {Select} from 'antd'
 export default class FormSelect extends PureComponent {
 
   render() {
-      const { typeData = [], value, disable} = this.props
+      const { typeData = [], value, disable, onChange} = this.props
     return (
         <Select 
             style={{width:'100%'}} 
             value={value} 
-            onChange={this.props.onChange}
+            onChange={onChange}
             disabled={disable}
         >
             {
