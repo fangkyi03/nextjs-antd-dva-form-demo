@@ -95,8 +95,8 @@ class Index extends Component {
     return (
       <div style={{paddingTop:apiTool.getSize(30),display:'flex'}}>
         <div style={{ display: 'flex',flexDirection:'column',width:500,height:2000 }}>
-          <div onClick={this.onButtonDown}>div按钮测试</div>
-          <Button onClick={this.onButtonDown}>button刷新数据测试</Button>
+          <div onClick={this.onButtonDown}>div按钮测试流畅</div>
+          <Button onClick={this.onButtonDown}>button刷新数据测试卡顿</Button>
           {/* <Button onClick={this.onToggleDisplay}>切换显示</Button> */}
           {/* <Button onClick={this.onShowModal}>显示弹窗modal</Button> */}
           {/* <Button onClick={this.onSetDisableDown}>设置表单禁用</Button> */}
