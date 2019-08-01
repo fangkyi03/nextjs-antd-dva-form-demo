@@ -345,7 +345,7 @@ export default class FormContainer {
                     return this.getChildren({ item: { type: 'itemGroup', keys: funData}})
                 }else if (React.isValidElement(funData)) {
                     this.addFormData(item)
-                    return this.renderChildren({item})(funData)
+                    return this.renderChildren({item})(()=>funData)
                 } else if (funData){
                     this.addFormData(funData)
                     return this.getChildren({ item: funData})
