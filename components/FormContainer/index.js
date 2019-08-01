@@ -24,6 +24,8 @@ export default class FormContainer {
         this.errorObj = {}
         this.errorTime = moment().valueOf()
         this._ref = {}
+        this.regComponentObj = {}
+        this.regRulesObj = {}
         this.initStore()
     }
 
@@ -94,14 +96,7 @@ export default class FormContainer {
     }
 
     onChange = (value, item) => {
-        switch (item.type) {
-            case 'input':
-                this.addStoreData(item.key, value.currentTarget.value)
-                break;
-            default:
-                this.addStoreData(item.key, value)
-                break;
-        }
+        this.addStoreData(item.key, value)
     }
 
     onHelpAnimEnd = () => {
@@ -209,7 +204,7 @@ export default class FormContainer {
     }
 
     getDisable = (item) => {
-        const { disable = [] } = this.props
+        const { disable = [] } = this.getFormStore()
         return disable.indexOf(item.key) !== -1
     }
 
@@ -327,19 +322,38 @@ export default class FormContainer {
         this.customChildren = callBack;
     }
 
-    getCustomChildren = ({ item }) => {
-        if (this.customChildren) {
-            const retData = this.customChildren(item)
-            if (React.isValidElement(retData)) {
-                return retData
-            } else if (Array.isArray(retData)) {
-                return this.getChildrenMap(retData)
-            } else if (retData.type) {
-                return this.getChildren({ item: retData })
-            } else {
-                return
+    addFormData = (item) =>{
+        const formData = this.initFormData([item],{}) || {}
+        const store = this.getFormStore()
+        Object.keys(formData).forEach((e)=>{
+            if (!store.formData[e]) {
+                store.formData[e] = formData[e]
             }
-        } else {
+        })
+    }
+
+    getCustomChildren = ({ item }) => {
+        const obj = this.regComponentObj[item.type]
+        if (obj) {
+            if (obj.prototype.render) {
+                this.addFormData(item)
+                return this.renderChildren({item})(obj)
+            }else if (typeof obj == 'function') {
+                const funData = obj(item)
+                if (Array.isArray(funData)) {
+                    this.addFormData({ type: 'itemGroup', keys: funData })
+                    return this.getChildren({ item: { type: 'itemGroup', keys: funData}})
+                }else if (React.isValidElement(funData)) {
+                    this.addFormData(item)
+                    return this.renderChildren({item})(funData)
+                } else if (funData){
+                    this.addFormData(funData)
+                    return this.getChildren({ item: funData})
+                }else {
+                    return null
+                }
+            } 
+        }else {
             return null
         }
     }
@@ -365,6 +379,10 @@ export default class FormContainer {
         return data.map((e, index) => {
             return this.getChildren({ item: e, index })
         })
+    }
+
+    regComponet = (name,Component) =>{
+        this.regComponentObj[name] = Component
     }
 
     getRow = (children, gutter = 10) => {

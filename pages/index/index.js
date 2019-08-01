@@ -28,8 +28,19 @@ class Index extends Component {
     return {
       type: 'group',
       cols:24,
-      labelCol:6,
-      wrappCol:5,
+      // keys:[
+      //   // {
+      //   //   type:'inputSelect',
+      //   //   name:'测试',
+      //   //   cols:24
+      //   // },
+      //   {
+      //     type:'inputSelect',
+      //     key:'a2',
+      //     name:'测试1',
+      //     cols:24
+      //   }
+      // ]
       keys:Array(1000).fill({}).map((e,i)=>({
         type:'input',
         name:'测试' + i,
@@ -101,7 +112,7 @@ class Index extends Component {
           {/* <Button onClick={this.onShowModal}>显示弹窗modal</Button> */}
           {/* <Button onClick={this.onSetDisableDown}>设置表单禁用</Button> */}
         </div>
-        <div style={{display:'flex',flexDirection:'column'}}>
+        <div style={{display:'flex',flexDirection:'column',flex:1}}>
           <FormView data={this.formData} modelName={'FormView'} />
           {/* <NewFormView1 data={this.formData1} />
           <NewFormModal data={this.formData} /> */}
