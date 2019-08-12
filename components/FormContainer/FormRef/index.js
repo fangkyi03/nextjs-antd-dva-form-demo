@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import Animate from 'rc-animate';
 import classNames from 'classnames';
+import apiTool from '../../../command/apiTool';
 export default class FormRef extends Component {
 
   constructor(props) {
@@ -67,7 +68,7 @@ export default class FormRef extends Component {
         {/* 渲染子组件 */}
         {this.renderChildren(stateProps)}
         {/* 渲染动画错误 */}
-        {error && this.renderAnimate(error)}
+        {error ? this.renderAnimate(error) : <div style={{ minHeight: 29.33, maxHeight:29.33,width:'100%',marginTop:apiTool.getSize(5)}}></div>}
       </div>
     )
   }
