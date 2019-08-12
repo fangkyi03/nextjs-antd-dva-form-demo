@@ -8,7 +8,7 @@ export default class FormCheckGroup extends Component {
     const {typeData,value,onChange} = this.props
     return (
         <Checkbox.Group
-            value={value}
+            value={value || []}
             style={{lineHeight:apiTool.getSize(33)}}
             onChange={onChange}
         >

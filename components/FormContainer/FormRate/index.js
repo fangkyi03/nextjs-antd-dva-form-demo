@@ -6,7 +6,7 @@ export default class FormRate extends Component {
     const {data,value,onChange} = this.props
     return (
         <Rate
-          value={value}
+          value={Number(value)}
           onChange={onChange}
           {...data.props}
         />

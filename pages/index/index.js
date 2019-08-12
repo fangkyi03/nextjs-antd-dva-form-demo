@@ -226,16 +226,17 @@ export default class Demo1 extends Component {
                 onClick: this.onChangeRadio
             },
             {
-                name:'设置所有值',
+                name:'随机设置所有值',
                 onClick:this.onSetAll
             }
         ]
         return (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {
-                    data.map((e) => {
+                    data.map((e,i) => {
                         return (
                             <Button
+                                key={i}
                                 onClick={() => e.onClick && e.onClick()}
                             >
                                 {e.name}

@@ -6,7 +6,7 @@ export default class FormSlider extends Component {
     const {data,onChange,value} = this.props
     return (
         <Slider
-            value={value}
+            value={Number(value)}
             onChange={onChange}
             min={data.min || 1}
             max={data.max || 100}

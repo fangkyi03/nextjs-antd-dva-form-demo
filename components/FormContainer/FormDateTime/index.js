@@ -7,7 +7,7 @@ export default class FormDateTime extends Component {
     const {onChange,data,value} = this.props
     return (
         <DatePicker
-          value={value && moment(value)}
+          value={value ? moment(value) : moment()}
           mode={data.type.replace('date', '').toLocaleLowerCase()}
           onChange={onChange}
         />

@@ -19,9 +19,10 @@ export default class BaseLayout extends Component {
     Router.replace('/' + item.router)
   }
 
-  renderMenu = (item) =>{
+  renderMenu = (item,index) =>{
     return (
         <Menu.Item 
+            key={index}
             onClick={()=>this.onItemDown(item)}
         >
             <span>{item.name}</span>
@@ -29,14 +30,15 @@ export default class BaseLayout extends Component {
     )
   }
 
-  renderMenuGroup = (item) => {
+  renderMenuGroup = (item,index) => {
     return (
         <Menu.SubMenu
             title={item.name}
+            key={index}
         >
             {
-                item.children.map((e)=>{
-                    return this.renderMenu(e)
+                item.children.map((e,i)=>{
+                    return this.renderMenu(e,i)
                 })
             }
         </Menu.SubMenu>
@@ -71,8 +73,8 @@ export default class BaseLayout extends Component {
     return (
         <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
             {
-                data.map((e)=>{
-                    return e.children && e.children.length > 0 ? this.renderMenuGroup(e) : this.renderMenu(e)
+                data.map((e,i)=>{
+                    return e.children && e.children.length > 0 ? this.renderMenuGroup(e,i) : this.renderMenu(e,i)
                 })
             }
         </Menu>

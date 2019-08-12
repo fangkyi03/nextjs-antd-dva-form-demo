@@ -102,6 +102,7 @@ export default class FormContainer {
         return (Component) => {
             return (
                 <FormGridContainer
+                    key={index}
                     span={item.cols || this.getParentCols() || 8} 
                     ref={(r) => this._cols[item.key] = r}
                 >
@@ -379,7 +380,6 @@ export default class FormContainer {
 
     getCustomChildren = ({ item }) => {
         const obj = this.regComponentObj[item.type]
-        console.log('输出robj', obj.prototype.render)
         if (obj) {
             if (obj.prototype.render) {
                 this.addFormData(item)
