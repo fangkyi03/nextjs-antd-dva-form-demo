@@ -50,7 +50,7 @@ export default class BaseLayout extends Component {
             children:[
                 {
                     name:'常见场景',
-                    router:'demo1'
+                    router:'index'
                 }
             ]
         },
