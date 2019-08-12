@@ -88,20 +88,6 @@ class Index extends Component {
     })
   }
 
-  onToggleDisplay = () =>{
-    this.toggleDisplay = !this.toggleDisplay
-    apiTool.toggleFormNotDisplay(this, 'FormView', ['a1', 'a2'], this.toggleDisplay)
-  }
-
-  onShowModal = () =>{
-    apiTool.toggleModal(this,'FormModal')
-  }
-  
-  onSetDisableDown = () => {
-    apiTool.setFormDisable(this,'FormView',['a1','a4'])
-    apiTool.setFormDisable(this,'FormModal',['a1','a2','a4'])
-  }
-
   render() {
     return (
       <div style={{paddingTop:apiTool.getSize(30),display:'flex'}}>
