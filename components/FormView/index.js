@@ -1,55 +1,45 @@
 import React, { Component } from 'react'
 import FormContainer from '../FormContainer';
 import apiTool from '../../command/apiTool';
-import FormSelect from '../FormContainer/FormSelect';
-import FormInput from '../FormContainer/FormInput';
+import FormImageUpload from '../FormImageUpload'
 
 export default class FormView extends Component {
 
-  static defaultProps = {
-    colSize: {
-      labelCol: 8,
-      wrappCol: 10,
-    }
-  }
-
   constructor(props) {
     super(props);
-    this.form = new FormContainer({ formData: props.data, ...props })
-    this.form.regComponet('selectNew',FormInput)
-    this.form.regComponet('inputSelect',(item)=>{
+    this.form = new FormContainer({
+      formData: props.data,
+      colSize: {
+        labelCol: 5,
+        wrappCol: 18,
+        cols: 24
+      },
+      ...props
+    })
+    this.form.regComponet('imageUpload',FormImageUpload)
+    this.form.regComponet('inputSelect', (item) => {
       return {
         ...item,
-        type:'itemGroup',
+        type: 'itemGroup',
         keys: [
           {
-            name: '测试1',
             type: 'input',
-            key: 'a1',
             cols: 10,
-            rules: [
-              {
-                required: true
-              }
-            ]
+            ...item.keys[0]
           },
           {
-            name: '测试2',
             type: 'select',
-            key: 'a2',
-            cols: 10
+            cols: 14,
+            ...item.keys[1]
           }
         ],
         rules: [
           {
-            required: true
+            required: item.required
           }
         ]
       }
     })
-  }
-
-  onGetRef = () => {
   }
 
   render() {

@@ -5,9 +5,9 @@ import dva, { connect } from 'dva-no-router';
 import * as NetTools from './netTool';
 import fetch from '../models/fetch';
 import apiTool from './apiTool';
-import {message} from 'antd'
-import * as mockTool from '../mockjs'
-import form from '../models/form'
+import form from '../models/form';
+// import * as mockTool from '../mockjs'
+// import {message} from 'antd'
 
 const checkServer = () => Object.prototype.toString.call(global.process) === '[object process]';
 
@@ -17,7 +17,7 @@ const __NEXT_DVA_STORE__ = '__NEXT_DVA_STORE__'
 
 const regModel = (modelList) => {
     modelList.forEach((e) => {
-        if (app && app._models && app._models.findIndex((el) => el.namespace == e) == -1 ) {
+        if (app && app._models && app._models.findIndex((el) => el.namespace == e) == -1) {
             app.model({
                 namespace: e,
                 state: {
@@ -49,22 +49,23 @@ function createDvaStore(initialState, modelList) {
         regModel(modelList)
     }
     if (app && app._models && app._models.findIndex((el) => el.namespace == 'fetch') == -1) {
-        app.model(form);
+        app.model(form)
         app.model(
             fetch({
-                mockTool,
                 netTool: NetTools,
+                // mockTool,
                 onGLNetStart: ({ retData }) => {
-                    if (retData.result) {
-                        return retData
-                    }
-                    if ((retData.code === 200) || retData.status === 0) {
+                    if ((retData.code == 200 && retData.data !== null) || retData.status === 0) {
                         return retData;
                     }
                     return false;
                 },
                 onGLNetError: ({ retData, url }) => {
-                    message.error(retData.msg || retData.message);
+                    console.log('输出网络错误', retData)
+                    if (retData.error === "invalid_token" || retData.error === "401" || retData.status == '401' || retData.status == 401) {
+                        apiTool.jumpLogin();
+                    }
+                    // message.error(retData.msg || retData.message );
                 },
                 onGLNetCatch: ({ error }) => {
                     console.log('接口异常输出', error);
@@ -80,7 +81,7 @@ function createDvaStore(initialState, modelList) {
 function getOrCreateStore(initialState, modelList) {
     if (!app) {
         return createDvaStore(initialState, modelList)._store
-    }else {
+    } else {
         regModel(modelList)
         return app._store
     }
@@ -99,33 +100,33 @@ function createDva(modelList, { option = {} } = {}) {
                 apiTool.clearList(this, this.props.modelList)
             }
         }
-        
-        getModalName = () =>{
+
+        getModalName = () => {
             return this.props.modelList[0]
         }
 
         render() {
-            const { Component, modelList, ...arg } = this.props
+            const { NewComponent, modelList, ...arg } = this.props
             return (
-                <Component {...arg} modelList={modelList} />
+                <NewComponent {...arg} modelList={modelList} />
             )
         }
     }
 
     return (Component) => {
         const ComponentWithDva = (props = {}) => {
-            const { store, initialProps, initialState,...arg } = props;
+            const { store, initialProps, initialState, ...arg } = props;
             const ComponentView = connect((state) => {
                 let obj = {}
                 modelList.forEach((e) => {
                     obj = { ...obj, ...state[e] }
                 })
-                return { ...obj, Component, modelList }
+                return { ...obj, NewComponent: Component, modelList }
             }, null, null, option)(DvaView)
             return React.createElement(
                 Provider,
                 { store: getOrCreateStore(initialState, modelList) },
-                React.createElement(ComponentView, { ...initialProps, ...arg}),
+                React.createElement(ComponentView, { ...initialProps, ...arg }),
             );
         };
         ComponentWithDva.getInitialProps = async (props = {}) => {
@@ -134,7 +135,6 @@ function createDva(modelList, { option = {} } = {}) {
             const initialProps = Component.getInitialProps
                 ? await Component.getInitialProps({ ...props, isServer, store })
                 : {};
-            return {}
             return {
                 store,
                 initialProps,

@@ -1,49 +1,66 @@
+import formStore from "../utils/formStore";
+
 export default {
     namespace: 'form',
     state: {},
-    reducers: {},
-    effects: {
-        // 设置表单数据
-        * setFormValue({ payload }, { call, select, put }) {
-            const {modelName,dataSource} = payload
-            const state = yield select((state)=>state[modelName])  
-            yield put({ type: `${modelName}/setValue`, payload: { dataSource: { ...state.dataSource, ...dataSource}}})
-        },
-        // 手动设置表单错误
-        *setFormError({payload},{put}) {
-            const { modelName, error } = payload
-            yield put({type:`${modelName}/setValue`,payload:{error}})
-        },
-        // 设置表单禁用
-        *setFormDisable({payload},{put,select}){
-            const { modelName, disable } = payload
-            if (Array.isArray(disable) && disable.length > 0) {
-                yield put({ type: `${modelName}/setValue`, payload: { disable} })
-            }
-        },
-        // 控制切换是否显示
-        * toggleFormNotDisplay({ payload }, { select,put}) {
-            const { modelName, notDisplay,isShow } = payload
-            const state = yield select((state) => state[modelName])
-            const dataSource = state.dataSource || {}
-            const oldNotDisplay = state.notDisplay || []
-            let newNotDisplay = oldNotDisplay    
-            if (Array.isArray(notDisplay) && notDisplay.length > 0) {
-                if (isShow) {
-                    const tempOldNotDisplay = new Set(oldNotDisplay)
-                    notDisplay.forEach((e)=>{
-                        tempOldNotDisplay.delete(e)
-                    })
-                    newNotDisplay = Array.from(tempOldNotDisplay)
-                }else {
-                    notDisplay.forEach((e) => {
-                        delete dataSource[e]
-                    })
-                    newNotDisplay = Array.from(new Set(newNotDisplay.concat(notDisplay)))
-                }
-            }
-            yield put({ type: `${modelName}/setValue`, payload: { notDisplay: newNotDisplay, dataSource } })
+    reducers: {
+        setValue(state, { payload }) {
+            return { ...state, ...payload };
         },
     },
-    subscriptions: {},
+    effects: {
+        // 清空表单数据
+        *clearForm({payload}) {
+            const {modelName} = payload
+            setTimeout(()=>{
+                formStore.clearForm(modelName)
+            })
+        },
+        // 隐藏表单不想显示组件
+        *setFormNotDisplay({payload}) {
+            const { modelName, notDisplay, isShow} = payload
+            setTimeout(()=>{
+                formStore.setFormNotDispaly(modelName, notDisplay, isShow)
+            })
+        },
+        // 设置表单值
+        *setFormValue({payload}) {
+            const {modelName,dataSource} = payload
+            setTimeout(()=>{
+                formStore.changeDataSource(modelName,dataSource)
+            })
+        },
+        // 提交表单
+        *sumbitForm({payload}) {
+            const { modelName, callBack} = payload
+            setTimeout(()=>{
+                formStore.sumbit(modelName, callBack)
+            })
+        },
+        // 重置表单
+        *resetForm({payload}) {
+            const {modelName} = payload
+            setTimeout(()=> {
+                formStore.resetForm(modelName)
+            })
+        },
+        // 返回表单数据
+        * getFormValue({payload}){
+            const {modelName,key} = payload
+            if (key) {
+                if (Array.isArray(key)) {
+                    const obj = {}
+                    const dataSource = formStore.getDataSource(modelName)
+                    key.forEach((e)=>{
+                        obj[e] = dataSource[e]
+                    })
+                    return obj
+                }else {
+                    return formStore.getDataSource(modelName)[key]
+                }
+            }else {
+                return formStore.getDataSource(modelName)
+            }
+        }
+    }
 }

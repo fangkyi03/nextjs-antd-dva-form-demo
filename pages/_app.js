@@ -8,6 +8,7 @@ import React from 'react'
 import './app.less'
 import { LocaleProvider } from 'antd';
 import zhCN from 'antd/lib/locale-provider/zh_CN';
+import BaseLayout from '../components/BaseLayout';
 
 class AppComponent extends React.Component {
 
@@ -35,7 +36,9 @@ class AppComponent extends React.Component {
         return (
             <Container>
                 <LocaleProvider locale={zhCN}>
-                    <Component {...pageProps} {...arg} routerParams={this.getRouter(arg)} />
+                    <BaseLayout>
+                        <Component {...pageProps} {...arg} routerParams={this.getRouter(arg)} />
+                    </BaseLayout>
                 </LocaleProvider>
             </Container>
         )

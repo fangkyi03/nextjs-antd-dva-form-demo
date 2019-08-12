@@ -12,7 +12,16 @@ export default class FormRef extends Component {
   
   setProps = (propsData) =>{
     this.setState({
-      stateProps:propsData
+      stateProps:{...this.state.stateProps,...propsData}
+    })
+  }
+
+  setNotDisplay = (isShow) =>{
+    this.setState({
+      stateProps:{
+        ...this.state.stateProps,
+        notDisplay:!isShow
+      }
     })
   }
 
@@ -46,7 +55,7 @@ export default class FormRef extends Component {
 
   render() {
     const {stateProps} = this.state
-    const { error,notDisplay } = stateProps
+    const { error, notDisplay } = stateProps
     if (notDisplay) return null
     const classes = classNames(
       'ant-form-item-children', {

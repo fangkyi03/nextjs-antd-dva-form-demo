@@ -41,7 +41,7 @@ class Index extends Component {
       //     cols:24
       //   }
       // ]
-      keys:Array(1000).fill({}).map((e,i)=>({
+      keys:Array(2000).fill({}).map((e,i)=>({
         type:'input',
         name:'测试' + i,
         key:'a' + i,
@@ -108,18 +108,13 @@ class Index extends Component {
         <div style={{ display: 'flex',flexDirection:'column',width:500,height:2000 }}>
           <div onClick={this.onButtonDown}>div按钮测试流畅</div>
           <Button onClick={this.onButtonDown}>button刷新数据测试卡顿</Button>
-          {/* <Button onClick={this.onToggleDisplay}>切换显示</Button> */}
-          {/* <Button onClick={this.onShowModal}>显示弹窗modal</Button> */}
-          {/* <Button onClick={this.onSetDisableDown}>设置表单禁用</Button> */}
         </div>
         <div style={{display:'flex',flexDirection:'column',flex:1}}>
           <FormView data={this.formData} modelName={'FormView'} />
-          {/* <NewFormView1 data={this.formData1} />
-          <NewFormModal data={this.formData} /> */}
         </div>
       </div>
     )
   }
 }
 
-export default createDva([])(Index)
+export default Index

@@ -8,11 +8,6 @@ export const setValue = function setValue(thz,modelName,payload) {
     thz.props.dispatch({type:`${modelName}/setValue`,payload})
 }
 
-// 获取vw尺寸
-export const getSize = function (size) {
-    return size / 7.5 + 'vw'
-}
-
 // 清除model列表
 export const clearList = function (thz, payload) {
     payload.forEach((e) => {
@@ -20,63 +15,72 @@ export const clearList = function (thz, payload) {
     })
 }
 
-// 清除单个model
-export const clear = function (thz,modelName,) {
-    thz.props.dispatch({ type: `${modelName}/celar` })
-}
-
-// 显示modal
-export const showModal = function(thz,modelName) {
-    thz.props.dispatch({ type: `${modelName}/setValue`, payload:{
-        isShowModal:true
-    }})
-}
-
-// 隐藏modal
-export const hiddenModal = function(thz,modelName) {
-    thz.props.dispatch({ type: `${modelName}/setValue`, payload:{
-        isShowModal:false
-    }})
-}
-
 // 获取路由参数
 export const getRouterParams = function(thz) {
     return thz.props.routerParams
 }
 
-// 设置表单数据
-export const setFormValue = function(thz,modelName,dataSource ) {
-    thz.props.dispatch({ type: `form/setFormValue`, payload: { modelName,dataSource}})
+// 获取vw尺寸
+export const getSize = function(size ) {
+    return size  / 19.2 + 'vw'
 }
 
-// 设置表单组件显示隐藏
-export const setFormNotDisplay = function (thz, modelName, notDisplay)  {
-    thz.props.dispatch({ type: `form/setFormNotDisplay`, payload: { modelName, notDisplay } })
-}
-
-// 清空表单显示控制功能
-export const clearNotDisplay = function (thz, modelName)  {
-    thz.props.dispatch({ type: `form/clearNotDisplay`, payload: { modelName } })
-}
-
-// 切换控制表单组件是否显示
-export const toggleFormNotDisplay = function (thz, modelName, notDisplay,isShow = false) {
-    thz.props.dispatch({ type: 'form/toggleFormNotDisplay', payload: {modelName,notDisplay,isShow}})
-}
-
-// 手动设置错误表单内容
-export const setFormError = function(thz,modelName,error) {
-    thz.props.dispatch({ type: 'form/setFormError', payload: { error, modelName}})
-}
-
-// 切换显示页面modal
+// 控制弹出层modal是否显示
 export const toggleModal = function(thz,modelName,isShow = true) {
-    thz.props.dispatch({ type: `${modelName}/setValue`, payload: {isShowModal:isShow } })
+    thz.props.dispatch({type:`${modelName}/setValue`,payload:{
+        isShowModal:isShow,
+        isEdit:false,
+    }})
 }
 
-// 设置表单禁用
-export const setFormDisable = function(thz,modelName,disable) {
-    thz.props.dispatch({ type: 'form/setFormDisable', payload: { disable, modelName } })
+// 打开编辑模式
+export const openEditModal = function( thz, modelName, isEdit = true) {
+    thz.props.dispatch({type:`${modelName}/setValue`,payload:{
+        isShowModal:true,
+        isEdit,
+    }})
+}
+
+// 清空对应表单model数据
+export const clearForm = function(thz,modelName) {
+    thz.props.dispatch({type:'form/clearForm',payload:{modelName}})
+}
+
+// 设置表单隐藏
+export const setFormNotDisplay = function(thz,modelName,notDisplay,isShow = false) {
+    thz.props.dispatch({ type:'form/setFormNotDisplay',payload:{
+        modelName,
+        notDisplay,
+        isShow
+    }})
+}
+
+// 设置表单数据
+export const setFormValue = function(thz,modelName,data){
+    thz.props.dispatch({type:'form/setFormValue',payload:{
+        modelName,
+        dataSource:data
+    }})
+}
+
+// 返回表单数据
+export const getFormValue = function(thz,modelName,key) {
+    return thz.props.dispatch({
+        type: 'form/getFormValue', payload: {
+            modelName,
+            key
+        }
+    })
+}
+
+// 提交表单
+export const sumbitForm = function(thz,modelName,callBack) {
+    thz.props.dispatch({ type: 'form/sumbitForm', payload: { modelName, callBack}})
+}
+
+// 重置表单
+export const resetForm = function(thz,modelName) {
+    thz.props.dispatch({ type: 'form/resetForm', payload: { modelName } })
 }
 
 export default {
@@ -84,15 +88,13 @@ export default {
     setValue,
     clearList,
     getRouterParams,
-    showModal,
-    hiddenModal,
-    clear,
-    setFormValue,
-    setFormNotDisplay,
-    clearNotDisplay,
-    toggleFormNotDisplay,
-    setFormError,
     getSize,
     toggleModal,
-    setFormDisable
+    openEditModal,
+    clearForm,
+    setFormNotDisplay,
+    setFormValue,
+    sumbitForm,
+    resetForm,
+    getFormValue
 }

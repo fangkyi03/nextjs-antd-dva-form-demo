@@ -7,14 +7,20 @@ import moment from 'moment'
 import FormRef from './FormRef';
 import formStore from '../../utils/formStore';
 import classNames from 'classnames';
+import FormText from './FormText';
+import FormInputArea from './FormInputArea';
+import FormDateTime from './FormDateTime';
+import FormRangePicker from './FormRangePicker';
+import FormButton from './FormButton';
+import FormCascader from './FormCascader';
+import FormGridContainer from './FormGridContainer';
+import FormRadio from './FormRadio';
+import FormCheckGroup from './FormCheckGroup';
+import FormInputNumber from './FormInputNumber';
+import FormSwitch from './FormSwitch';
+import FormSlider from './FormSlider';
+import FormRate from './FormRate';
 export default class FormContainer {
-
-    static defaultProps = {
-        colSize: {
-            labelCol: 8,
-            wrappCol: 16,
-        }
-    }
 
     constructor({ formData, ...arg }) {
         this.formData = formData
@@ -24,8 +30,14 @@ export default class FormContainer {
         this.errorObj = {}
         this.errorTime = moment().valueOf()
         this._ref = {}
+        this._cols = {}
         this.regComponentObj = {}
         this.regRulesObj = {}
+        this.colSize = arg.colSize || {
+            labelCol: 5,
+            wrappCol: 18,
+            cols: 24
+        }
         this.initStore()
     }
 
@@ -41,23 +53,43 @@ export default class FormContainer {
     }
 
     initStore = () => {
-        formStore.addStore(this.getFormNmae(), {
+        formStore.addStore(this.getFormNmae(), (store = { dataSource: {} }) => ({
             subscribe: this.subscribe,
-            dataSource: {},
-            disable: [],
-            typeData: [],
-            formData: this.initFormData(this.formData, {})
+            setNotDisplay:this.setNotDisplay,
+            dataSource: store.dataSource || {},
+            disable: store.disable || [],
+            typeData: store.disable || [],
+            formData: this.initFormData(this.formData, {}),
+            getRules: this.pushError,
+            setFormError:this.setFormError,
+            notDisplay:[],
+        }))
+    }
+
+    setNotDisplay = (notDisplay,isShow) => {
+        notDisplay.forEach((e)=>{
+            this._cols[e].setShow(isShow)
+        })
+    }
+
+    setFormError = (error) =>{
+        Object.keys(error).forEach((e)=>{
+            this._ref[e].setProps({
+               error:error[e]
+            })
         })
     }
 
     subscribe = (dataSource) => {
         Object.keys(dataSource).forEach((e) => {
-            const formItem = formStore.getFormItem(this.getFormNmae(), e)
+            const formItem = formStore.getFormItem(this.getFormNmae(), e)   
             this._ref[e].setProps({
-                value: this.getValue(formItem),
+                value:dataSource[e],
                 disable: this.getDisable(formItem),
                 typeData: this.getTypeData(formItem),
-                error: this.getRulesMessage(formItem)
+                error: this.getRulesMessage(formItem),
+                notDisplay: this.getNotDisplay(formItem),
+                data:formItem,
             })
         })
     }
@@ -69,9 +101,12 @@ export default class FormContainer {
     renderCols = ({ item, index }) => {
         return (Component) => {
             return (
-                <Col span={item.cols || 8}>
+                <FormGridContainer
+                    span={item.cols || this.getParentCols() || 8} 
+                    ref={(r) => this._cols[item.key] = r}
+                >
                     {this.renderNormal({ item, index })(Component)}
-                </Col>
+                </FormGridContainer>
             )
         }
     }
@@ -80,7 +115,7 @@ export default class FormContainer {
     getValue = (item) => {
         const dataSource = formStore.getFormData(this.getFormNmae())
         if (!item.key) return
-        return dataSource[item.key] ? dataSource[item.key] : item.value || ''
+        return dataSource && dataSource[item.key] ? dataSource[item.key] : ''
     }
 
     renderNormal = ({ item, index }) => {
@@ -108,20 +143,9 @@ export default class FormContainer {
         return typeData[item.key] || item.typeData || []
     }
 
-    onDestory = () => {
-        if (this.destoryNum == 0) {
-            this.destoryNum += 1;
-            setTimeout(() => {
-                console.log('输出延迟')
-            }, 100)
-        } else {
-            this.destoryNum += 1;
-        }
-    }
-
     getNotDisplay = (item) => {
-        const { notDisplay = [] } = this.props
-        return notDisplay.indexOf(item.key) == -1
+        const { notDisplay = [] } = this.getFormStore()
+        return !notDisplay.indexOf(item.key) == -1
     }
 
     getRule = (rule, value, item) => {
@@ -151,10 +175,12 @@ export default class FormContainer {
     }
 
     getRules = (item) => {
-        for (let i = 0; i < item.rules.length; i++) {
-            const retData = this.getRule(item.rules[i], this.getValue(item), item)
-            if (retData) {
-                return retData
+        if (item.rules && item.rules.length > 0) {
+            for (let i = 0; i < item.rules.length; i++) {
+                const retData = this.getRule(item.rules[i], this.getValue(item), item)
+                if (retData) {
+                    return retData
+                }
             }
         }
         return null
@@ -183,6 +209,7 @@ export default class FormContainer {
         const ret = this.getRules(item)
         this.errorObj[item.key] = ret
         this.addError(item)
+        return ret;
     }
 
     getFormStore = () => {
@@ -208,6 +235,16 @@ export default class FormContainer {
         return disable.indexOf(item.key) !== -1
     }
 
+    getOtherEvent = (item) => {
+        const obj = {}
+        Object.keys(item).forEach((e)=>{
+            if (e.indexOf('on') !== -1) {
+                obj[e] = item[e]
+            }
+        })
+        return obj
+    }
+
     renderComponent = ({ item, index }) => {
         return (Component) => {
             return (
@@ -218,7 +255,9 @@ export default class FormContainer {
                     value={this.getValue(item)}
                     disable={this.getDisable(item)}
                     typeData={this.getTypeData(item)}
-                    // error={this.getRulesMessage(item)}
+                    notDisplay={this.getNotDisplay(item)}
+                    data={item}
+                    {...this.getOtherEvent(item)}
                 >
                     <Component
                         style={item.style}
@@ -240,12 +279,16 @@ export default class FormContainer {
     }
 
     getLabelCol = (item) => {
-        const { colSize } = this.props
+        const { colSize } = this.getParentColSize()
         return item.labelCol || colSize.labelCol || 8
     }
 
+    getParentColSize = () => {
+        return { colSize: this.colSize }
+    }
+
     getWrapperCol = (item) => {
-        const { colSize } = this.props
+        const { colSize } = this.getParentColSize()
         return item.wrappCol || colSize.wrappCol || 8
     }
 
@@ -280,11 +323,13 @@ export default class FormContainer {
         }
     }
 
+    getParentCols = () => {
+        return this.getParentColSize().colSize.cols
+    }
+
     renderChildren = ({ item, index }) => {
         return (Component) => {
-            const isNotDisplay = this.getNotDisplay(item)
-            if (!isNotDisplay) return null
-            const fun = [this.renderNormal, this.renderCols][Number(!!item.cols)]
+            const fun = [this.renderNormal, this.renderCols][Number(!!(item.cols || this.getParentCols()))]
             return fun({ item, index })(Component)
         }
     }
@@ -306,7 +351,7 @@ export default class FormContainer {
         const wrappCol = this.getWrapperCol(item)
         return (Component) => {
             return (
-                <Col span={item.cols || 8}>
+                <Col span={item.cols || this.getParentCols()}>
                     <Row gutter={item.gutter || 5} className={'ant-row ant-form-item'}>
                         {this.renderLabel(item)}
                         <Col span={wrappCol}>
@@ -322,10 +367,10 @@ export default class FormContainer {
         this.customChildren = callBack;
     }
 
-    addFormData = (item) =>{
-        const formData = this.initFormData([item],{}) || {}
+    addFormData = (item) => {
+        const formData = this.initFormData([item], {}) || {}
         const store = this.getFormStore()
-        Object.keys(formData).forEach((e)=>{
+        Object.keys(formData).forEach((e) => {
             if (!store.formData[e]) {
                 store.formData[e] = formData[e]
             }
@@ -334,38 +379,66 @@ export default class FormContainer {
 
     getCustomChildren = ({ item }) => {
         const obj = this.regComponentObj[item.type]
+        console.log('输出robj', obj.prototype.render)
         if (obj) {
             if (obj.prototype.render) {
                 this.addFormData(item)
-                return this.renderChildren({item})(obj)
-            }else if (typeof obj == 'function') {
+                return this.renderChildren({ item })(obj)
+            } else if (typeof obj == 'function') {
                 const funData = obj(item)
                 if (Array.isArray(funData)) {
                     this.addFormData({ type: 'itemGroup', keys: funData })
-                    return this.getChildren({ item: { type: 'itemGroup', keys: funData}})
-                }else if (React.isValidElement(funData)) {
+                    return this.getChildren({ item: { type: 'itemGroup', keys: funData } })
+                } else if (React.isValidElement(funData)) {
                     this.addFormData(item)
-                    return this.renderChildren({item})(()=>funData)
-                } else if (funData){
+                    return this.renderChildren({ item })(() => funData)
+                } else if (funData) {
                     this.addFormData(funData)
-                    return this.getChildren({ item: funData})
-                }else {
+                    return this.getChildren({ item: funData })
+                } else {
                     return null
                 }
-            } 
-        }else {
+            }
+        } else {
             return null
         }
     }
 
     getChildren = (data) => {
-        switch (data.item.type) {
+        const type = typeof data.item.type == 'function' ? data.item.type(this.props) : data.item.type
+        switch (type) {
+            case 'text':
+                return this.renderChildren(data)(FormText)
             case 'input':
                 return this.renderChildren(data)(FormInput)
             case 'select':
                 return this.renderChildren(data)(FormSelect)
             case 'checkBox':
-                return this.renderChildren(data)(Checkbox)
+                return this.renderChildren(data)(FormCheckGroup)
+            case 'inputArea':
+                return this.renderChildren(data)(FormInputArea)
+            case 'dateYear':
+            case 'dateTime':
+            case 'dateMonth':
+            case 'dateDate':
+            case 'dateDecade':
+                return this.renderChildren(data)(FormDateTime)
+            case 'rangePicker':
+                return this.renderChildren(data)(FormRangePicker)
+            case 'button':
+                return this.renderChildren(data)(FormButton)
+            case 'cascader':
+                return this.renderChildren(data)(FormCascader)
+            case 'radio':
+                return this.renderChildren(data)(FormRadio)
+            case 'inputNumber':
+                return this.renderChildren(data)(FormInputNumber)
+            case 'switch':
+                return this.renderChildren(data)(FormSwitch)
+            case 'slider':
+                return this.renderChildren(data)(FormSlider)
+            case 'rate':
+                return this.renderChildren(data)(FormRate)
             case 'group':
                 return this.renderGroup(data.item)(this.getChildrenMap(data.item.keys));
             case 'itemGroup':
@@ -381,7 +454,7 @@ export default class FormContainer {
         })
     }
 
-    regComponet = (name,Component) =>{
+    regComponet = (name, Component) => {
         this.regComponentObj[name] = Component
     }
 
