@@ -181,9 +181,9 @@ export default class Demo1 extends Component {
 
     onSetAll = () =>{
         apiTool.setFormValue(this, 'demo1', {
-            a1:1,
-            a2:1,
-            a3:[1],
+            a1:Math.floor(Math.random() * 4),
+            a2: Math.floor(Math.random() * 4),
+            a3: [Math.floor(Math.random() * 4)],
             a4:Math.random() * 1000,
             a5:Math.random() * 1000,
             a6:1,
@@ -202,8 +202,8 @@ export default class Demo1 extends Component {
                     url: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
                 }
             }],
-            a11: 50,
-            a12: 3,
+            a11: Math.floor(Math.random() * 100),
+            a12: Math.floor(Math.random() * 5),
         })
     }
 
