@@ -60,13 +60,17 @@ export default class BaseLayout extends Component {
             name:'性能测试',
             children:[
                 {
-                    name: '1k编辑框',
+                    name: '1000编辑框',
                     router: 'demo2'
                 },
                 {
-                    name:'2k编辑框',
+                    name:'2000编辑框',
                     router:'demo3'
                 },
+                {
+                    name:'8000编辑框',
+                    router:'demo4'
+                }
             ]
         }
     ]
