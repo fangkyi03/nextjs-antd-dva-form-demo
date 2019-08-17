@@ -1,5 +1,5 @@
 // require('next-inferno/alias')()
-const fastify = require('fastify')({ logger: { level: 'error' } })
+const fastify = require('fastify')({ logger: { level: 'error' }, pluginTimeout: -1 })
 const Next = require('next')
 const port = parseInt(process.env.PORT, 10) || 3010
 const dev = process.env.NODE_ENV !== 'production'
