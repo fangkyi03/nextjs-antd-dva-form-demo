@@ -53,6 +53,10 @@ export default class BaseLayout extends Component {
                 {
                     name:'常见场景',
                     router:'index'
+                },
+                {
+                    name:'动态表单',
+                    router:'demo5'
                 }
             ]
         },

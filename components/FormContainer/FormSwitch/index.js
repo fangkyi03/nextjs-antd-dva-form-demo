@@ -5,9 +5,9 @@ import apiTool from '../../../command/apiTool';
 export default class FormSwitch extends Component {
 
   render() {
-    const {onChange,value} = this.props
+    const { onChange, value, data, disable} = this.props
     return (
-      <Switch onChange={onChange} checked={!!value} defaultChecked={true}/>
+      <Switch onChange={onChange} checked={!!value} defaultChecked={true} disabled={disable} {...data.props} />
     )
   }
 }

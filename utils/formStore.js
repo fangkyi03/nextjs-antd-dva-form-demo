@@ -54,6 +54,22 @@ class FormStore {
         return this.store[name]['formData'][key]
     }
 
+    // 获取表单结构
+    getForm (name) {
+        if (this.isCreate(name)) {
+            return this.store[name]['formData'] || []
+        }else {
+            return []
+        }
+    }
+
+    // 替换表单结构
+    replaceForm (name,formData) {
+        if (this.isCreate(name)) {
+            this.store[name]['formData'] = formData
+        }
+    }
+
     // 判断是否创建成功
     isCreate = (name) => {
         return this.store[name]
@@ -117,6 +133,24 @@ class FormStore {
             newDataSource[e] = ''
         })
         this.changeDataSource(name,newDataSource)
+    }
+
+    // 获取禁用事件
+    getDisableEvent (name) {
+        return this.getFormStore(name)['setFormDisable']
+    }
+
+    // 禁用表单中的组件
+    disableForm (name,disable = [],isDisable = true) {
+        if (this.isCreate(name)) {
+            if (disable.length == 0) {
+                const formData = this.getFormData(name)
+                const disableArr = Object.keys(formData)
+                this.getDisableEvent(name)(disableArr, isDisable)
+            } else {
+                this.getDisableEvent(name)(disable, isDisable)
+            }
+        }
     }
 }
 

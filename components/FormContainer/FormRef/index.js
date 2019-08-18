@@ -7,26 +7,26 @@ export default class FormRef extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      stateProps:props || {}
+      stateProps: props || {}
     }
   }
-  
-  setProps = (propsData) =>{
+
+  setProps = (propsData) => {
     this.setState({
-      stateProps:{...this.state.stateProps,...propsData}
+      stateProps: { ...this.state.stateProps, ...propsData }
     })
   }
 
-  setNotDisplay = (isShow) =>{
+  setNotDisplay = (isShow) => {
     this.setState({
-      stateProps:{
+      stateProps: {
         ...this.state.stateProps,
-        notDisplay:!isShow
+        notDisplay: !isShow
       }
     })
   }
 
-  renderAnimate = (error) =>{
+  renderAnimate = (error) => {
     return (
       <Animate
         transitionName="show-help"
@@ -41,7 +41,7 @@ export default class FormRef extends Component {
     )
   }
 
-  renderChildren = (stateProps) =>{
+  renderChildren = (stateProps) => {
     return (
       <span className={'ant-form-item-children'}>
         {
@@ -55,7 +55,7 @@ export default class FormRef extends Component {
   }
 
   render() {
-    const {stateProps} = this.state
+    const { stateProps } = this.state
     const { error, notDisplay } = stateProps
     if (notDisplay) return null
     const classes = classNames(
@@ -64,11 +64,11 @@ export default class FormRef extends Component {
       }
     )
     return (
-      <div className={classes} key="help">  
+      <div className={classes} key="help">
         {/* 渲染子组件 */}
         {this.renderChildren(stateProps)}
         {/* 渲染动画错误 */}
-        {error ? this.renderAnimate(error) : <div style={{ minHeight: 29.33, maxHeight:29.33,width:'100%',marginTop:apiTool.getSize(5)}}></div>}
+        {error ? this.renderAnimate(error) : <div style={{ minHeight: 29.33, maxHeight: 29.33, width: '100%', marginTop: apiTool.getSize(5) }}></div>}
       </div>
     )
   }

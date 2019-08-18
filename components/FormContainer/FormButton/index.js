@@ -8,6 +8,7 @@ export default class FormButton extends Component {
       <Button
         type={data.buttonType}
         onClick={data.onClick}
+        {...data.props}
       >
           {data.name || data.title}
       </Button>

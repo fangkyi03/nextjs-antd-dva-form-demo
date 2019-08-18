@@ -3,13 +3,14 @@ import { Slider } from 'antd';
 
 export default class FormSlider extends Component {
   render() {
-    const {data,onChange,value} = this.props
+    const { data, onChange, value, disable} = this.props
     return (
         <Slider
             value={Number(value)}
             onChange={onChange}
             min={data.min || 1}
             max={data.max || 100}
+            disabled={disable}
         />
     )
   }

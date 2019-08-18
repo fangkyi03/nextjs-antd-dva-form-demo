@@ -5,6 +5,10 @@ import FormImageUpload from '../FormImageUpload'
 
 export default class FormView extends Component {
 
+  static defaultProps = {
+    data:[]
+  }
+
   constructor(props) {
     super(props);
     this.form = new FormContainer({
@@ -42,6 +46,17 @@ export default class FormView extends Component {
     })
   }
 
+  getModalName = () =>{
+    const {modelList,modelName} = this.props
+    return (modelList && modelList[0]) || modelName || ''
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.data && nextProps.data.length !== this.props.data) {
+      this.form.replaceFormData(this.getModalName(),nextProps.data)
+    }
+  }
+  
   render() {
     return this.form.getRow(
       this.form.getChildrenMap()

@@ -4,14 +4,14 @@ import { Select } from 'antd'
 export default class FormSelect extends PureComponent {
 
     render() {
-        const { typeData = [], value, disable, onChange, ...arg } = this.props
+        const { typeData = [], value, disable, onChange,data } = this.props
         return (
             <Select
-                {...arg}
                 style={{ width: '100%' }}
                 value={value}
                 onChange={onChange}
                 disabled={disable}
+                {...data.props}
             >
                 {
                     typeData.map((e, i) => {

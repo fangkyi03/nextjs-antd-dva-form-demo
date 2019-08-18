@@ -3,13 +3,17 @@ import { DatePicker } from 'antd';
 import moment from 'moment'
 
 export default class FormDateTime extends Component {
+
   render() {
-    const {onChange,data,value} = this.props
+    const {onChange,data,value,disable} = this.props
+    console.log('输出时间',value)
     return (
         <DatePicker
-          value={value ? moment(value) : moment()}
+          value={moment(value)}
           mode={data.type.replace('date', '').toLocaleLowerCase()}
           onChange={onChange}
+          disabled={disable}
+          {...data.props}
         />
     )
   }

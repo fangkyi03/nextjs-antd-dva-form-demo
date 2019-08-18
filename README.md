@@ -8,6 +8,7 @@
 2.新增 性能演示 - 1000个编辑框
 3.新增 性能演示 - 2000个编辑框
 4.新增 性能演示 - 8000个编辑框
+5.新增 动态表单 演示
 ```
 
 # 安装
@@ -18,6 +19,48 @@ cnpm i
 # 运行
 ```javascript
 npm run dev
+```
+
+# 页面数据源隔离
+```javascript
+通过如下的这种方式:
+createDva(modelNameList)(FormView)
+你其实就做到了一个简单的隔离 你的FormView现在只会跟demo5Form这个model进行绑定
+这个页面的值修改不会再影响到外层页面的刷新
+所以这个时候你想刷新demo5Form这个model的时候 只需要调用
+api.setValue(thz,'demo5Form',{xxx})
+就会修改对应model的值 
+这个api在下面有介绍
+```
+
+# modelName优先级
+```javascript
+默认modelName取值优先级:
+createDva > props
+constructor(props) {
+    super(props);
+    this.form = createDva(['demo5Form'])(FormView)
+}
+render() {
+    const Form = this.form
+    return (
+        <div>
+            <Form
+                modelName={'xxx'}
+            />
+            {this.renderButtonGroup()}
+        </div>
+    )
+}
+如上面这个场景
+当你formView使用createDva包裹以后
+即时formView的props中有modelName 也会优先使用createDva中使用的值
+createDva并不是必须的只有如动态表单或者想通过props去刷新的时候 才应该使用这个 其他情况无需包裹
+直接如下使用即可
+<Form
+    data={this.formData}
+    modelName={'xxx'}
+/>
 ```
 
 # 项目结构介绍
@@ -35,6 +78,12 @@ npm run dev
 
 # api介绍
 
+```javascript
+// 使用刷新props的方式来刷新页面
+setValue
+使用:
+setValue(this,modelName,params) : void
+```
 ```javascript
 // 获取当前页面路由参数
 getRouterParams

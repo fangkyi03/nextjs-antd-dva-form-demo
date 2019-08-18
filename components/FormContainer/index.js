@@ -24,7 +24,6 @@ export default class FormContainer {
 
     constructor({ formData, ...arg }) {
         this.formData = formData
-        this.props = arg
         this.customChildren = null
         this.destoryNum = 0
         this.errorObj = {}
@@ -38,6 +37,7 @@ export default class FormContainer {
             wrappCol: 18,
             cols: 24
         }
+        this.modelName = (arg.modelList && arg.modelList[0]) || arg.modelName || ''
         this.initStore()
     }
 
@@ -53,7 +53,7 @@ export default class FormContainer {
     }
 
     initStore = () => {
-        formStore.addStore(this.getFormNmae(), (store = { dataSource: {} }) => ({
+        formStore.addStore(this.getFormName(), (store = { dataSource: {} }) => ({
             subscribe: this.subscribe,
             setNotDisplay:this.setNotDisplay,
             dataSource: store.dataSource || {},
@@ -62,8 +62,24 @@ export default class FormContainer {
             formData: this.initFormData(this.formData, {}),
             getRules: this.pushError,
             setFormError:this.setFormError,
+            setFormDisable:this.setFormDisable,
             notDisplay:[],
         }))
+    }
+
+    replaceFormData = (name,formData) => {
+        formStore.replaceForm(name,this.initFormData(formData,{}))
+        this.formData = formData
+    }
+
+    setFormDisable = (disableArr,isDisable = true) => {
+        disableArr.forEach((e)=>{
+            if (this._ref[e]) {
+                this._ref[e].setProps({
+                    disable: isDisable
+                })
+            }
+        })
     }
 
     setNotDisplay = (notDisplay,isShow) => {
@@ -82,15 +98,17 @@ export default class FormContainer {
 
     subscribe = (dataSource) => {
         Object.keys(dataSource).forEach((e) => {
-            const formItem = formStore.getFormItem(this.getFormNmae(), e)   
-            this._ref[e].setProps({
-                value:dataSource[e],
-                disable: this.getDisable(formItem),
-                typeData: this.getTypeData(formItem),
-                error: this.getRulesMessage(formItem),
-                notDisplay: this.getNotDisplay(formItem),
-                data:formItem,
-            })
+            if (this._ref[e]) {
+                const formItem = formStore.getFormItem(this.getFormName(), e)
+                this._ref[e].setProps({
+                    value: dataSource[e],
+                    disable: this.getDisable(formItem),
+                    typeData: this.getTypeData(formItem),
+                    error: this.getRulesMessage(formItem),
+                    notDisplay: this.getNotDisplay(formItem),
+                    data: formItem,
+                })
+            }
         })
     }
 
@@ -114,9 +132,9 @@ export default class FormContainer {
 
 
     getValue = (item) => {
-        const dataSource = formStore.getFormData(this.getFormNmae())
+        const dataSource = formStore.getFormData(this.getFormName())
         if (!item.key) return
-        return dataSource && dataSource[item.key] ? dataSource[item.key] : ''
+        return dataSource && dataSource[item.key] ? dataSource[item.key] : item.value || ''
     }
 
     renderNormal = ({ item, index }) => {
@@ -127,7 +145,7 @@ export default class FormContainer {
     }
 
     addStoreData = (key, data) => {
-        formStore.changeStoreData(this.getFormNmae(), key, data)
+        formStore.changeStoreData(this.getFormName(), key, data)
         this.subscribe({ [key]: data })
     }
 
@@ -160,13 +178,21 @@ export default class FormContainer {
                 msg: '输入内容超过长度'
             }
         }
-        if (!rule.type) {
+        if (!rule.type && !rule.reg) {
             if (!data['required'].reg.test(value)) {
                 return rule.msg || data['required'].msg
             } else {
                 return ''
             }
-        } else if (data[rule.type].reg && !data[rule.type].reg.test(value)) {
+        } 
+        if (rule.reg) {
+            if (!rule.reg.test(value)) {
+                return rule.msg || '请输入内容';   
+            }else {
+                return ''
+            }
+        }
+        if (data[rule.type].reg && !data[rule.type].reg.test(value)) {
             return rule.msg || data[rule.type].msg
         } else if (data[rule.type].err) {
             return rule.msg || data[rule.type].msg
@@ -187,14 +213,14 @@ export default class FormContainer {
         return null
     }
 
-    getFormNmae = () => {
-        return this.props.modelName
+    getFormName = () => {
+        return this.modelName
     }
 
     addError = (item) => {
         const { error = {} } = this.getFormStore()
         if (error[item.key] !== this.errorObj[item.key]) {
-            formStore.changeError(this.getFormNmae(), this.errorObj)
+            formStore.changeError(this.getFormName(), this.errorObj)
         }
     }
 
@@ -214,7 +240,7 @@ export default class FormContainer {
     }
 
     getFormStore = () => {
-        return formStore.getFormStore(this.getFormNmae())
+        return formStore.getFormStore(this.getFormName())
     }
 
     getRulesMessage = (item) => {

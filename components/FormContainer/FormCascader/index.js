@@ -4,7 +4,7 @@ import apiTool from "../../../command/apiTool";
 
 export default class FormCascader extends Component {
   render() {
-    const { typeData = [], value, disable, onChange, ...arg } = this.props;
+    const { typeData = [], value, disable, onChange,data } = this.props;
     return (
       <Cascader
         options={typeData}
@@ -13,6 +13,7 @@ export default class FormCascader extends Component {
         disable={disable}
         onChange={onChange}
         placeholder={'请选择'}
+        {...data.props}
       />
     );
   }

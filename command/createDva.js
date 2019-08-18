@@ -31,7 +31,12 @@ const regModel = (modelList) => {
                         return { isShow: true }
                     }
                 },
-                effect: {},
+                effects: {
+                    *getValue({payload},{select}) {
+                        const {modelName} = payload
+                        return yield select((state) => state[modelName]) || {}
+                    }
+                },
                 subscriptions: {},
             })
         }

@@ -5,12 +5,13 @@ import apiTool from '../../../command/apiTool';
 export default class FormCheckGroup extends Component {
 
   render() {
-    const {typeData,value,onChange} = this.props
+    const {typeData,value,onChange,data} = this.props
     return (
         <Checkbox.Group
             value={value || []}
             style={{lineHeight:apiTool.getSize(33)}}
             onChange={onChange}
+            {...data.props}
         >
             {
                 typeData.map((e,i)=>{

@@ -5,11 +5,12 @@ import apiTool from '../../../command/apiTool';
 export default class FormInputNumber extends Component {
 
   render() {
-    const {onChange,value} = this.props
+    const {onChange,value,data} = this.props
     return (
         <InputNumber
             onChange={onChange}
             value={value}
+            {...data.props}
             // style={{height:apiTool.getSize(33)}}
         />
     )

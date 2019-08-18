@@ -5,12 +5,14 @@ import apiTool from '../../../command/apiTool';
 export default class FormRadio extends Component {
 
   render() {
-    const {typeData,onChange,value} = this.props
+    const { typeData, onChange, value, data, disable} = this.props
     return (
         <Radio.Group 
             value={value}
             onChange={(value)=>onChange(value.target.value)}
             style={{height:apiTool.getSize(33),lineHeight:apiTool.getSize(33)}}
+            disabled={disable}
+            {...data.props}
         >
             {
                 typeData.map((e,i)=>{
