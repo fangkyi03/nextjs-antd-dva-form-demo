@@ -13,6 +13,7 @@ export default class Demo5 extends Component {
         this.form = createDva(['demo5Form'])(FormView)
     }
 
+    // 动态添加编辑框
     onAddInput = async() => {
         const oldForm = await apiTool.getValue(this,'demo5Form')
         apiTool.setValue(this,'demo5Form',{
@@ -26,6 +27,7 @@ export default class Demo5 extends Component {
         })
     }
 
+    // 动态添加下拉框
     onAddSelect = async() =>{
         const oldForm = await apiTool.getValue(this, 'demo5Form')
         apiTool.setValue(this, 'demo5Form', {
@@ -45,12 +47,14 @@ export default class Demo5 extends Component {
         })
     }
 
+    // 获取表单结构
     getForm = async() => {
         const oldForm = await apiTool.getValue(this, 'demo5Form')
         // 这里放的其实就是可以被回显的表单结构
         console.log('输出oldForm', oldForm)
     }
 
+    // 获取表单数据源
     getFormDataSource = async() => {
         const dataSource = await apiTool.getFormValue(this, 'demo5Form')
         console.log(dataSource)

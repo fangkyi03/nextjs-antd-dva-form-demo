@@ -63,6 +63,19 @@ createDva并不是必须的只有如动态表单或者想通过props去刷新的
 />
 ```
 
+# 与dva官方DEMO的差异
+```javascript
+我对dva的model做了简化处理 你只需要调用以下两个api即可修改任意model
+
+通过createDva就等于注册了一个model 任何操作都可以通过下面两个api实现
+// 获取指定model值
+api.getValue(this,modelName) : object
+// 设置指定model值
+api.setValue(this,modelName,params)
+无需学习saga也不需要有redux的开发经验 变得很简单
+
+```
+
 # 项目结构介绍
 ```
 总体分为三个
