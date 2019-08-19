@@ -3,7 +3,7 @@ import { Slider } from 'antd';
 
 export default class FormSlider extends Component {
   render() {
-    const { data, onChange, value, disable} = this.props
+    const { data, onChange, value, disable,event} = this.props
     return (
         <Slider
             value={Number(value)}
@@ -11,6 +11,8 @@ export default class FormSlider extends Component {
             min={data.min || 1}
             max={data.max || 100}
             disabled={disable}
+            // {...arg}
+            {...event}
         />
     )
   }

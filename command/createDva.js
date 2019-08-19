@@ -25,6 +25,7 @@ const regModel = (modelList) => {
                 },
                 reducers: {
                     setValue(state, { payload }) {
+                        console.log('输出修改值',state)
                         return { ...state, ...payload }
                     },
                     clear(state, { payload }) {
@@ -126,6 +127,7 @@ function createDva(modelList, { option = {} } = {}) {
                 modelList.forEach((e) => {
                     obj = { ...obj, ...state[e] }
                 })
+                console.log('输出option', option)
                 return { ...obj, NewComponent: Component, modelList }
             }, null, null, option)(DvaView)
             return React.createElement(

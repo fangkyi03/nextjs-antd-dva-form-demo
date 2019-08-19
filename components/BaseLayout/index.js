@@ -57,6 +57,10 @@ export default class BaseLayout extends Component {
                 {
                     name:'动态表单',
                     router:'demo5'
+                },
+                {
+                    name:'动态表单 - 事件绑定',
+                    router:'demo6'
                 }
             ]
         },

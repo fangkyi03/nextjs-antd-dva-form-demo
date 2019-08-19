@@ -32,6 +32,7 @@ export default class FormContainer {
         this._cols = {}
         this.regComponentObj = {}
         this.regRulesObj = {}
+        this.formEvent = arg.formEvent || null
         this.colSize = arg.colSize || {
             labelCol: 5,
             wrappCol: 18,
@@ -54,26 +55,26 @@ export default class FormContainer {
 
     initStore = () => {
         formStore.addStore(this.getFormName(), (store = { dataSource: {} }) => ({
-            subscribe: this.subscribe,
-            setNotDisplay:this.setNotDisplay,
+            subscribe: [this.subscribe],
+            setNotDisplay: [this.setNotDisplay],
             dataSource: store.dataSource || {},
             disable: store.disable || [],
             typeData: store.disable || [],
             formData: this.initFormData(this.formData, {}),
-            getRules: this.pushError,
-            setFormError:this.setFormError,
-            setFormDisable:this.setFormDisable,
-            notDisplay:[],
+            getRules: [this.pushError],
+            setFormError: [this.setFormError],
+            setFormDisable: [this.setFormDisable],
+            notDisplay: [],
         }))
     }
 
-    replaceFormData = (name,formData) => {
-        formStore.replaceForm(name,this.initFormData(formData,{}))
+    replaceFormData = (name, formData) => {
+        formStore.replaceForm(name, this.initFormData(formData, {}))
         this.formData = formData
     }
 
-    setFormDisable = (disableArr,isDisable = true) => {
-        disableArr.forEach((e)=>{
+    setFormDisable = (disableArr, isDisable = true) => {
+        disableArr.forEach((e) => {
             if (this._ref[e]) {
                 this._ref[e].setProps({
                     disable: isDisable
@@ -82,16 +83,16 @@ export default class FormContainer {
         })
     }
 
-    setNotDisplay = (notDisplay,isShow) => {
-        notDisplay.forEach((e)=>{
+    setNotDisplay = (notDisplay, isShow) => {
+        notDisplay.forEach((e) => {
             this._cols[e].setShow(isShow)
         })
     }
 
-    setFormError = (error) =>{
-        Object.keys(error).forEach((e)=>{
+    setFormError = (error) => {
+        Object.keys(error).forEach((e) => {
             this._ref[e].setProps({
-               error:error[e]
+                error: error[e]
             })
         })
     }
@@ -100,14 +101,16 @@ export default class FormContainer {
         Object.keys(dataSource).forEach((e) => {
             if (this._ref[e]) {
                 const formItem = formStore.getFormItem(this.getFormName(), e)
-                this._ref[e].setProps({
-                    value: dataSource[e],
-                    disable: this.getDisable(formItem),
-                    typeData: this.getTypeData(formItem),
-                    error: this.getRulesMessage(formItem),
-                    notDisplay: this.getNotDisplay(formItem),
-                    data: formItem,
-                })
+                if (formItem) {
+                    this._ref[e].setProps({
+                        value: dataSource[e],
+                        disable: this.getDisable(formItem),
+                        typeData: this.getTypeData(formItem),
+                        error: this.getRulesMessage(formItem),
+                        notDisplay: this.getNotDisplay(formItem),
+                        data: formItem,
+                    })
+                }
             }
         })
     }
@@ -121,7 +124,7 @@ export default class FormContainer {
             return (
                 <FormGridContainer
                     key={index}
-                    span={item.cols || this.getParentCols() || 8} 
+                    span={item.cols || this.getParentCols() || 8}
                     ref={(r) => this._cols[item.key] = r}
                 >
                     {this.renderNormal({ item, index })(Component)}
@@ -184,11 +187,11 @@ export default class FormContainer {
             } else {
                 return ''
             }
-        } 
+        }
         if (rule.reg) {
             if (!rule.reg.test(value)) {
-                return rule.msg || '请输入内容';   
-            }else {
+                return rule.msg || '请输入内容';
+            } else {
                 return ''
             }
         }
@@ -263,232 +266,237 @@ export default class FormContainer {
     }
 
     getOtherEvent = (item) => {
-        const obj = {}
-        Object.keys(item).forEach((e)=>{
+        let obj = {}
+        Object.keys(item).forEach((e) => {
             if (e.indexOf('on') !== -1) {
                 obj[e] = item[e]
             }
         })
-        return obj
-    }
-
-    renderComponent = ({ item, index }) => {
-        return (Component) => {
-            return (
-                <FormRef
-                    ref={(r) => this._ref[item.key] = r}
-                    onChange={(value) => this.onChange(value, item)}
-                    key={item.key}
-                    value={this.getValue(item)}
-                    disable={this.getDisable(item)}
-                    typeData={this.getTypeData(item)}
-                    notDisplay={this.getNotDisplay(item)}
-                    data={item}
-                    {...this.getOtherEvent(item)}
-                >
-                    <Component
-                        style={item.style}
-                    />
-                </FormRef>
-            )
+        if (this.formEvent && this.formEvent[item.key]) {
+            obj = this.formEvent[item.key]
+        }
+        return {
+            event: { ...obj }
         }
     }
 
-    renderFormItem = ({ item, index }) => {
-        return (Component) => {
+        renderComponent = ({ item, index }) => {
+            return (Component) => {
+                return (
+                    <FormRef
+                        ref={(r) => this._ref[item.key] = r}
+                        onChange={(value) => this.onChange(value, item)}
+                        key={item.key}
+                        value={this.getValue(item)}
+                        disable={this.getDisable(item)}
+                        typeData={this.getTypeData(item)}
+                        notDisplay={this.getNotDisplay(item)}
+                        data={item}
+                        {...this.getOtherEvent(item)}
+                    >
+                        <Component
+                            style={item.style}
+                        />
+                    </FormRef>
+                )
+            }
+        }
+
+        renderFormItem = ({ item, index }) => {
+            return (Component) => {
+                return (
+                    <Row key={index} className={'ant-form-item'}>
+                        {this.renderLabel(item)}
+                        {this.renderWraper(item)(Component)}
+                    </Row>
+                )
+            }
+        }
+
+        getLabelCol = (item) => {
+            const { colSize } = this.getParentColSize()
+            return item.labelCol || colSize.labelCol || 8
+        }
+
+        getParentColSize = () => {
+            return { colSize: this.colSize }
+        }
+
+        getWrapperCol = (item) => {
+            const { colSize } = this.getParentColSize()
+            return item.wrappCol || colSize.wrappCol || 8
+        }
+
+        getRequired = (item) => {
+            if (item.rules) {
+                return item.rules.some((e) => e.required == true)
+            } else {
+                return false
+            }
+        }
+
+        renderLabel = (item) => {
+            const labelCol = this.getLabelCol(item)
+            const labelClass = classNames({
+                ['ant-form-item-required']: this.getRequired(item)
+            })
             return (
-                <Row key={index} className={'ant-form-item'}>
-                    {this.renderLabel(item)}
-                    {this.renderWraper(item)(Component)}
+                <Col span={labelCol} className={'ant-form-item-label'}>
+                    <label className={labelClass} title={item.name}>{item.name}</label>
+                </Col>
+            )
+        }
+
+        renderWraper = (item) => {
+            const wrappCol = this.getWrapperCol(item)
+            return (Component) => {
+                return (
+                    <Col span={wrappCol}>
+                        {this.renderComponent({ item })(Component)}
+                    </Col>
+                )
+            }
+        }
+
+        getParentCols = () => {
+            return this.getParentColSize().colSize.cols
+        }
+
+        renderChildren = ({ item, index }) => {
+            return (Component) => {
+                const fun = [this.renderNormal, this.renderCols][Number(!!(item.cols || this.getParentCols()))]
+                return fun({ item, index })(Component)
+            }
+        }
+
+        renderGroup = (item) => {
+            const groupCol = item.cols || 24
+            return (Component) => {
+                return (
+                    <Col span={groupCol}>
+                        <Row gutter={item.gutter || 8} className={'ant-row'}>
+                            {Component}
+                        </Row>
+                    </Col>
+                )
+            }
+        }
+
+        renderItemGroup = (item) => {
+            const wrappCol = this.getWrapperCol(item)
+            return (Component) => {
+                return (
+                    <Col span={item.cols || this.getParentCols()}>
+                        <Row gutter={item.gutter || 5} className={'ant-row ant-form-item'}>
+                            {this.renderLabel(item)}
+                            <Col span={wrappCol}>
+                                {Component}
+                            </Col>
+                        </Row>
+                    </Col>
+                )
+            }
+        }
+
+        setCustomChildren(callBack) {
+            this.customChildren = callBack;
+        }
+
+        addFormData = (item) => {
+            const formData = this.initFormData([item], {}) || {}
+            const store = this.getFormStore()
+            Object.keys(formData).forEach((e) => {
+                if (!store.formData[e]) {
+                    store.formData[e] = formData[e]
+                }
+            })
+        }
+
+        getCustomChildren = ({ item }) => {
+            const obj = this.regComponentObj[item.type]
+            if (obj) {
+                if (obj.prototype.render) {
+                    this.addFormData(item)
+                    return this.renderChildren({ item })(obj)
+                } else if (typeof obj == 'function') {
+                    const funData = obj(item)
+                    if (Array.isArray(funData)) {
+                        this.addFormData({ type: 'itemGroup', keys: funData })
+                        return this.getChildren({ item: { type: 'itemGroup', keys: funData } })
+                    } else if (React.isValidElement(funData)) {
+                        this.addFormData(item)
+                        return this.renderChildren({ item })(() => funData)
+                    } else if (funData) {
+                        this.addFormData(funData)
+                        return this.getChildren({ item: funData })
+                    } else {
+                        return null
+                    }
+                }
+            } else {
+                return null
+            }
+        }
+
+        getChildren = (data) => {
+            const type = typeof data.item.type == 'function' ? data.item.type(this.props) : data.item.type
+            switch (type) {
+                case 'text':
+                    return this.renderChildren(data)(FormText)
+                case 'input':
+                    return this.renderChildren(data)(FormInput)
+                case 'select':
+                    return this.renderChildren(data)(FormSelect)
+                case 'checkBox':
+                    return this.renderChildren(data)(FormCheckGroup)
+                case 'inputArea':
+                    return this.renderChildren(data)(FormInputArea)
+                case 'dateYear':
+                case 'dateTime':
+                case 'dateMonth':
+                case 'dateDate':
+                case 'dateDecade':
+                    return this.renderChildren(data)(FormDateTime)
+                case 'rangePicker':
+                    return this.renderChildren(data)(FormRangePicker)
+                case 'button':
+                    return this.renderChildren(data)(FormButton)
+                case 'cascader':
+                    return this.renderChildren(data)(FormCascader)
+                case 'radio':
+                    return this.renderChildren(data)(FormRadio)
+                case 'inputNumber':
+                    return this.renderChildren(data)(FormInputNumber)
+                case 'switch':
+                    return this.renderChildren(data)(FormSwitch)
+                case 'slider':
+                    return this.renderChildren(data)(FormSlider)
+                case 'rate':
+                    return this.renderChildren(data)(FormRate)
+                case 'group':
+                    return this.renderGroup(data.item)(this.getChildrenMap(data.item.keys));
+                case 'itemGroup':
+                    return this.renderItemGroup(data.item)(this.getChildrenMap(data.item.keys.map((e) => ({ ...e, name: null }))))
+                default:
+                    return this.getCustomChildren(data)
+            }
+        }
+
+        getChildrenMap = (data = this.formData) => {
+            return data.map((e, index) => {
+                return this.getChildren({ item: e, index })
+            })
+        }
+
+        regComponet = (name, Component) => {
+            this.regComponentObj[name] = Component
+        }
+
+        getRow = (children, gutter = 10) => {
+            return (
+                <Row gutter={gutter}>
+                    {children}
                 </Row>
             )
         }
     }
-
-    getLabelCol = (item) => {
-        const { colSize } = this.getParentColSize()
-        return item.labelCol || colSize.labelCol || 8
-    }
-
-    getParentColSize = () => {
-        return { colSize: this.colSize }
-    }
-
-    getWrapperCol = (item) => {
-        const { colSize } = this.getParentColSize()
-        return item.wrappCol || colSize.wrappCol || 8
-    }
-
-    getRequired = (item) => {
-        if (item.rules) {
-            return item.rules.some((e) => e.required == true)
-        } else {
-            return false
-        }
-    }
-
-    renderLabel = (item) => {
-        const labelCol = this.getLabelCol(item)
-        const labelClass = classNames({
-            ['ant-form-item-required']: this.getRequired(item)
-        })
-        return (
-            <Col span={labelCol} className={'ant-form-item-label'}>
-                <label className={labelClass} title={item.name}>{item.name}</label>
-            </Col>
-        )
-    }
-
-    renderWraper = (item) => {
-        const wrappCol = this.getWrapperCol(item)
-        return (Component) => {
-            return (
-                <Col span={wrappCol}>
-                    {this.renderComponent({ item })(Component)}
-                </Col>
-            )
-        }
-    }
-
-    getParentCols = () => {
-        return this.getParentColSize().colSize.cols
-    }
-
-    renderChildren = ({ item, index }) => {
-        return (Component) => {
-            const fun = [this.renderNormal, this.renderCols][Number(!!(item.cols || this.getParentCols()))]
-            return fun({ item, index })(Component)
-        }
-    }
-
-    renderGroup = (item) => {
-        const groupCol = item.cols || 24
-        return (Component) => {
-            return (
-                <Col span={groupCol}>
-                    <Row gutter={item.gutter || 8} className={'ant-row'}>
-                        {Component}
-                    </Row>
-                </Col>
-            )
-        }
-    }
-
-    renderItemGroup = (item) => {
-        const wrappCol = this.getWrapperCol(item)
-        return (Component) => {
-            return (
-                <Col span={item.cols || this.getParentCols()}>
-                    <Row gutter={item.gutter || 5} className={'ant-row ant-form-item'}>
-                        {this.renderLabel(item)}
-                        <Col span={wrappCol}>
-                            {Component}
-                        </Col>
-                    </Row>
-                </Col>
-            )
-        }
-    }
-
-    setCustomChildren(callBack) {
-        this.customChildren = callBack;
-    }
-
-    addFormData = (item) => {
-        const formData = this.initFormData([item], {}) || {}
-        const store = this.getFormStore()
-        Object.keys(formData).forEach((e) => {
-            if (!store.formData[e]) {
-                store.formData[e] = formData[e]
-            }
-        })
-    }
-
-    getCustomChildren = ({ item }) => {
-        const obj = this.regComponentObj[item.type]
-        if (obj) {
-            if (obj.prototype.render) {
-                this.addFormData(item)
-                return this.renderChildren({ item })(obj)
-            } else if (typeof obj == 'function') {
-                const funData = obj(item)
-                if (Array.isArray(funData)) {
-                    this.addFormData({ type: 'itemGroup', keys: funData })
-                    return this.getChildren({ item: { type: 'itemGroup', keys: funData } })
-                } else if (React.isValidElement(funData)) {
-                    this.addFormData(item)
-                    return this.renderChildren({ item })(() => funData)
-                } else if (funData) {
-                    this.addFormData(funData)
-                    return this.getChildren({ item: funData })
-                } else {
-                    return null
-                }
-            }
-        } else {
-            return null
-        }
-    }
-
-    getChildren = (data) => {
-        const type = typeof data.item.type == 'function' ? data.item.type(this.props) : data.item.type
-        switch (type) {
-            case 'text':
-                return this.renderChildren(data)(FormText)
-            case 'input':
-                return this.renderChildren(data)(FormInput)
-            case 'select':
-                return this.renderChildren(data)(FormSelect)
-            case 'checkBox':
-                return this.renderChildren(data)(FormCheckGroup)
-            case 'inputArea':
-                return this.renderChildren(data)(FormInputArea)
-            case 'dateYear':
-            case 'dateTime':
-            case 'dateMonth':
-            case 'dateDate':
-            case 'dateDecade':
-                return this.renderChildren(data)(FormDateTime)
-            case 'rangePicker':
-                return this.renderChildren(data)(FormRangePicker)
-            case 'button':
-                return this.renderChildren(data)(FormButton)
-            case 'cascader':
-                return this.renderChildren(data)(FormCascader)
-            case 'radio':
-                return this.renderChildren(data)(FormRadio)
-            case 'inputNumber':
-                return this.renderChildren(data)(FormInputNumber)
-            case 'switch':
-                return this.renderChildren(data)(FormSwitch)
-            case 'slider':
-                return this.renderChildren(data)(FormSlider)
-            case 'rate':
-                return this.renderChildren(data)(FormRate)
-            case 'group':
-                return this.renderGroup(data.item)(this.getChildrenMap(data.item.keys));
-            case 'itemGroup':
-                return this.renderItemGroup(data.item)(this.getChildrenMap(data.item.keys.map((e) => ({ ...e, name: null }))))
-            default:
-                return this.getCustomChildren(data)
-        }
-    }
-
-    getChildrenMap = (data = this.formData) => {
-        return data.map((e, index) => {
-            return this.getChildren({ item: e, index })
-        })
-    }
-
-    regComponet = (name, Component) => {
-        this.regComponentObj[name] = Component
-    }
-
-    getRow = (children, gutter = 10) => {
-        return (
-            <Row gutter={gutter}>
-                {children}
-            </Row>
-        )
-    }
-}

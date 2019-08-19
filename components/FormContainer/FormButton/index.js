@@ -3,14 +3,16 @@ import { Button } from 'antd';
 
 export default class FormButton extends Component {
   render() {
-    const {data} = this.props
+    const { data, disable,event} = this.props
     return (
       <Button
+        disabled={disable}
         type={data.buttonType}
         onClick={data.onClick}
         {...data.props}
+        {...event}
       >
-          {data.name || data.title}
+          {data.title}
       </Button>
     )
   }

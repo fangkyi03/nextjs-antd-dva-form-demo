@@ -4,7 +4,7 @@ import { Select } from 'antd'
 export default class FormSelect extends PureComponent {
 
     render() {
-        const { typeData = [], value, disable, onChange,data } = this.props
+        const { typeData = [], value, disable, onChange,data,event } = this.props
         return (
             <Select
                 style={{ width: '100%' }}
@@ -12,6 +12,8 @@ export default class FormSelect extends PureComponent {
                 onChange={onChange}
                 disabled={disable}
                 {...data.props}
+                {...event}
+                // {...arg}
             >
                 {
                     typeData.map((e, i) => {

@@ -3,7 +3,7 @@ import apiTool from '../../../command/apiTool';
 
 export default class FormText extends Component {
   render() {
-    const { value } = this.props
+    const { value,} = this.props
     return (
       <div
         style={{

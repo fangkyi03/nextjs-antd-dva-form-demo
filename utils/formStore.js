@@ -5,7 +5,18 @@ class FormStore {
     }
     
     addStore(name,data) {
-        this.store[name] = data(this.store[name])
+        if (this.isCreate(name)) {
+            const newStore = data(this.store[name])
+            Object.keys(newStore).forEach((e)=>{
+                if (Array.isArray(newStore[e])) {
+                    this.store[name][e] = newStore[e].concat(this.store[name][e])
+                }else if (typeof newStore[e] == 'object') {
+                    this.store[name][e] = { ...this.store[name][e],...newStore[e]}
+                }
+            })
+        }else {
+            this.store[name] = data(this.store[name])
+        }
     }
 
     releaseStore (name){
@@ -34,7 +45,14 @@ class FormStore {
         if (this.isCreate(name)) {
             const newValue = { ...this.getDataSource(name), ...value }
             this.store[name]['dataSource'] = newValue
-            this.getSubscribe(name)(value)
+            const subscribe = this.getSubscribe(name)
+            if (Array.isArray(subscribe)) {
+                subscribe.forEach((e)=>{
+                    e(value)
+                })
+            }else {
+                subscribe(value)
+            }
         }
     }
 
@@ -66,7 +84,7 @@ class FormStore {
     // 替换表单结构
     replaceForm (name,formData) {
         if (this.isCreate(name)) {
-            this.store[name]['formData'] = formData
+            this.store[name]['formData'] = {...this.store[name]['formData'],...formData}
         }
     }
 
@@ -99,7 +117,13 @@ class FormStore {
             const store = this.getFormStore(name)
             const newDisplay = new Set(store.notDisplay.concat(notDisplay))
             store.notDisplay = Array.from(newDisplay)
-            event(notDisplay, isShow)
+            if (Array.isArray(event)) {
+                event.forEach((e)=>{
+                    e(notDisplay, isShow)
+                })
+            }else {
+                event(notDisplay, isShow)
+            }
         }
     }
 
@@ -109,17 +133,36 @@ class FormStore {
         const dataSource = this.getDataSource(name)
         const error = {}
         let isHaveErr = false
+        let errorIndex = 0
         Object.keys(store.formData).forEach((e)=>{
-            const errorText = store.getRules(store.formData[e])
-            if (errorText) {
-                if (!isHaveErr) {
-                    isHaveErr = true
+            let errorText = ''
+            if (Array.isArray(store.getRules)) {
+                store.getRules.forEach((el,i)=>{
+                    errorText = el(store.formData[e])
+                    if (errorText) {
+                        errorIndex = i
+                        if (!isHaveErr) {
+                            isHaveErr = true
+                        }
+                        error[e] = errorText
+                    }
+                })
+            }else {
+                errorText = store.getRules(store.formData[e])
+                if (errorText) {
+                    if (!isHaveErr) {
+                        isHaveErr = true
+                    }
+                    error[e] = errorText
                 }
-                error[e] = errorText
             }
         })
-        store.setFormError(error)
         if (isHaveErr) {
+            if (Array.isArray(store.setFormError)) {
+                store.setFormError[errorIndex](error)
+            } else {
+                store.setFormError(error)
+            }
             callBack({ error: isHaveErr ? error : null, dataSource})
         }else {
             callBack({ error: null, dataSource})
@@ -143,12 +186,25 @@ class FormStore {
     // 禁用表单中的组件
     disableForm (name,disable = [],isDisable = true) {
         if (this.isCreate(name)) {
+            const disableEvent = this.getDisableEvent(name)
             if (disable.length == 0) {
                 const formData = this.getFormData(name)
                 const disableArr = Object.keys(formData)
-                this.getDisableEvent(name)(disableArr, isDisable)
+                if (Array.isArray(disableEvent)) {
+                    disableEvent.forEach((e)=>{
+                        e(disableArr, isDisable)
+                    })
+                }else {
+                    this.getDisableEvent(name)(disableArr, isDisable)
+                }
             } else {
-                this.getDisableEvent(name)(disable, isDisable)
+                if (Array.isArray(disableEvent)) {
+                    disableEvent.forEach((e) => {
+                        e(disableArr, isDisable)
+                    })
+                } else {
+                    this.getDisableEvent(name)(disableArr, isDisable)
+                }
             }
         }
     }

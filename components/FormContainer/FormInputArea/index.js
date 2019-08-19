@@ -4,7 +4,7 @@ import apiTool from '../../../command/apiTool';
 
 export default class FormInputArea extends Component {
   render() {
-    const { value, onChange, data, disable} = this.props
+    const { value, onChange, data, disable, arg} = this.props
     return (
         <Input.TextArea
             value={value}
@@ -13,6 +13,7 @@ export default class FormInputArea extends Component {
             style={{height:apiTool.getSize(200),...data.style}}
             disabled={disable}
             {...data.props}
+            {...arg}
         />
     )
   }
