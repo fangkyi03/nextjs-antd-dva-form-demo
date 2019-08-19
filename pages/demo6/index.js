@@ -10,11 +10,15 @@ export default class Demo6 extends Component {
 
     constructor(props) {
         super(props);
+        // 这里写的是所有动态表单的事件绑定
+        // 因为动态表单的关系 如果想下次进来还绑定事件 这里就需要这样做 否则事件无法绑定
         this.formEvent = {
             b1: {
                 onClick: this.onAdd
             }
         }
+        // 这种card的数组结构的 只改变data里面的值 但是长度不变的情况下 需要把pure改成false
+        // 否则在react-redux里面会被diff掉 不会刷新页面
         this.formCard = createDva(['demo6'], { option: { pure: false } })(FormCard)
     }
 
