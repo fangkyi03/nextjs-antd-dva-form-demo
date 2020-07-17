@@ -33,7 +33,7 @@
     "inferno-create-class": "7.2.1",
     "inferno-create-element": "7.2.1",
     "jimp": "0.6.4",
-    "lodash": "4.17.15",
+    "lodash": "4.17.19",
     "lqip-loader": "2.2.0",
     "lru-cache": "5.1.1",
     "mockjs": "1.0.1-beta3",
